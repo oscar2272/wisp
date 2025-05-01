@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-Wisp
-=======
-
 # Wisp
 
 > > > > > > > 7261cf1 (add project README.md)
