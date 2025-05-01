@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 Wisp
-A monorepo project combining a Django backend and a Remix frontend, with Supabase-based authentication.
+=======
+
+# Wisp
+
+> > > > > > > 7261cf1 (add project README.md)
+> > > > > > > A monorepo project combining a Django backend and a Remix frontend, with Supabase-based authentication.
 
 🧱 Project Structure
 /backend/ - Django 5.x API server with Supabase JWT authentication
