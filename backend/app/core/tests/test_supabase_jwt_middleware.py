@@ -59,7 +59,6 @@ def test_jwt_middleware_existing_user():
     assert request.user.name == "기존 유저"  # 새 name으로 덮지 않음
 
 
-
 # 헤더 없는 경우 익명 사용자로 설정
 @pytest.mark.django_db
 def test_jwt_middleware_anonymous_if_no_header():
@@ -70,6 +69,7 @@ def test_jwt_middleware_anonymous_if_no_header():
 
     from django.contrib.auth.models import AnonymousUser
     assert isinstance(request.user, AnonymousUser)
+
 
 # 잘못된 서명 토큰 처리
 @pytest.mark.django_db
@@ -108,7 +108,11 @@ def test_jwt_middleware_uses_existing_user():
         "email": "exist@user.com",
         "user_metadata": {"name": "새 유저 이름"}  # 이건 무시되어야 함
     }
-    token = jwt.encode(payload, settings.SUPABASE_JWT_SECRET, algorithm="HS256")
+    token = jwt.encode(
+        payload,
+        settings.SUPABASE_JWT_SECRET,
+        algorithm="HS256"
+        )
     request = RequestFactory().get("/", HTTP_AUTHORIZATION=f"Bearer {token}")
 
     middleware = SupabaseJWTMiddleware(get_response=lambda r: None)

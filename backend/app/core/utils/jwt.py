@@ -1,6 +1,6 @@
 import jwt
-import os
 from django.conf import settings
+
 
 def verify_supabase_jwt(token):
     try:
