@@ -15,7 +15,15 @@ import {
   SidebarSeparator,
 } from "~/common/components/ui/sidebar";
 
-export default function UserPopOverMenu() {
+export default function UserPopOverMenu({
+  email,
+  username,
+  avatar,
+}: {
+  email: string;
+  username: string;
+  avatar: string;
+}) {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -23,16 +31,20 @@ export default function UserPopOverMenu() {
           size="lg"
           className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
         >
-          <Avatar className="h-8 w-8 rounded-full">
-            <AvatarImage
-              src="https://github.com/oscar2272.png"
-              alt="oscar2272"
-            />
-            <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+          <Avatar>
+            {avatar ? (
+              <AvatarImage
+                src={avatar}
+                alt="avatar"
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <AvatarFallback>{username?.[0]}</AvatarFallback>
+            )}
           </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold">shadcn</span>
-            <span className="truncate text-xs">m@example.com</span>
+            <span className="truncate font-semibold">{username}</span>
+            <span className="truncate text-xs">{email}</span>
           </div>
           <ChevronsUpDown className="ml-auto size-4" />
         </SidebarMenuButton>
@@ -45,23 +57,14 @@ export default function UserPopOverMenu() {
       >
         <div className="flex flex-col space-y-1">
           <div className="flex items-center gap-2 p-2">
-            <Avatar className="h-8 w-8">
-              <AvatarImage
-                src="https://github.com/oscar2272.png"
-                alt="shadcn"
-              />
-              <AvatarFallback>SC</AvatarFallback>
-            </Avatar>
             <div className="flex flex-col">
-              <span className="text-sm font-medium">shadcn</span>
-              <span className="text-xs text-muted-foreground">
-                m@example.com
-              </span>
+              <span className="text-sm font-medium">{username}</span>
+              <span className="text-xs text-muted-foreground">{email}</span>
             </div>
           </div>
           <SidebarSeparator className="my-1" />
           <Link
-            to="/account"
+            to="/wisp/profile"
             className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
           >
             <User className="h-4 w-4" />

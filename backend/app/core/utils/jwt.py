@@ -12,7 +12,6 @@ def verify_supabase_jwt(token):
         )
         return {
             "email": decoded.get("email"),
-            "name": decoded.get("user_metadata", {}).get("name", "")
         }
-    except jwt.PyJWTError:
+    except jwt.PyJWTError as e:
         return None

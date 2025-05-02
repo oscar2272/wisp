@@ -133,7 +133,11 @@ export default function Navigation({
             <DropdownMenuTrigger asChild>
               <Avatar>
                 {avatar ? (
-                  <AvatarImage src={avatar} />
+                  <AvatarImage
+                    src={avatar}
+                    alt="avatar"
+                    className="object-cover w-full h-full"
+                  />
                 ) : (
                   <AvatarFallback>{username?.[0]}</AvatarFallback>
                 )}
@@ -154,7 +158,7 @@ export default function Navigation({
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="cursor-pointer">
-                  <Link to="/my/profile">
+                  <Link to="/wisp/profile">
                     <UserIcon className="size-4 mr-2" />
                     Profile
                   </Link>

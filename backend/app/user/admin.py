@@ -7,7 +7,7 @@ from django.contrib import admin
 class UserAdmin(BaseUserAdmin):
     """Define the admin pages for users"""
     ordering = ['id']
-    list_display = ['email', 'name']
+    list_display = ['email']
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         (
@@ -30,7 +30,6 @@ class UserAdmin(BaseUserAdmin):
               'email',
               'password1',
               'password2',
-              'name',
               'is_active',
               'is_staff',
               'is_superuser',

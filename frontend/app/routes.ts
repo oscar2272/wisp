@@ -8,10 +8,10 @@ import {
 
 export default [
   layout("common/layouts/navigation-layout.tsx", [
-    route("/wisp", "common/pages/home-page.tsx"),
-    ...prefix("/wisp/explore", [
-      route("/", "common/pages/explore-page.tsx"),
-      route("/:slug", "common/pages/explore-note-page.tsx"),
+    ...prefix("/wisp", [
+      index("common/pages/home-page.tsx"),
+      route("/explore", "common/pages/explore-page.tsx"),
+      route("/explore/:slug", "common/pages/explore-note-page.tsx"),
     ]),
   ]),
 
@@ -19,6 +19,11 @@ export default [
     route("/wisp/notes", "features/notes/pages/note-home-page.tsx"),
     route("/wisp/notes/edit", "features/notes/pages/note-edit-page.tsx"),
     route("/wisp/notes/:slug", "features/notes/pages/note-page.tsx"),
+    route("/wisp/profile", "features/profiles/pages/profile-page.tsx"),
+    route(
+      "/wisp/profile/edit",
+      "features/profiles/pages/profile-edit-page.tsx"
+    ),
   ]),
 
   layout("features/auth/layouts/auth-layout.tsx", [

@@ -15,25 +15,29 @@ import {
 import { Link, useLocation } from "react-router";
 import {
   Home,
-  User,
   Trash2,
   Settings,
   FolderIcon,
   ChevronDown,
   FolderClockIcon,
   FolderLockIcon,
-  FolderOpenIcon,
   FileText,
   FileEditIcon,
-  FolderLock,
   FolderKeyIcon,
-  FolderPenIcon,
 } from "lucide-react";
 import UserPopOverMenu from "./user-popover";
 import { useState } from "react";
 import { Button } from "~/common/components/ui/button";
 
-export default function NoteSidebar() {
+export default function NoteSidebar({
+  email,
+  username,
+  avatar,
+}: {
+  email: string;
+  username: string;
+  avatar: string;
+}) {
   const location = useLocation();
   const [isUnSharedNotesOpen, setIsUnSharedNotesOpen] = useState(false);
   const [isSharedNotesOpen, setIsSharedNotesOpen] = useState(false);
@@ -56,19 +60,6 @@ export default function NoteSidebar() {
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={location.pathname === `/oscar2272`}
-                    >
-                      <Link to="/oscar2272">
-                        <User className="size-4" />
-                        <span>Profile</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -77,7 +68,7 @@ export default function NoteSidebar() {
             <div className="flex items-center justify-between pr-1">
               <SidebarGroupLabel>Archive</SidebarGroupLabel>
               <Button variant="ghost" size="icon" className="h-6 w-6" asChild>
-                <Link to="/wisp/notes/new">
+                <Link to="/wisp/notes/edit">
                   <FileEditIcon className="size-4" />
                 </Link>
               </Button>
@@ -222,7 +213,11 @@ export default function NoteSidebar() {
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <UserPopOverMenu />
+              <UserPopOverMenu
+                email={email}
+                username={username}
+                avatar={avatar}
+              />
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>

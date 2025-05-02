@@ -19,7 +19,7 @@ export default function Home() {
       {/* CTA */}
       <div className="mb-12">
         <Button size="lg" asChild>
-          <Link to="/wisp/notes/new">✍️ 새 메모 작성하기</Link>
+          <Link to="/wisp/notes/edit">✍️ 새 메모 작성하기</Link>
         </Button>
       </div>
 
