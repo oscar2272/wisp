@@ -5,7 +5,12 @@ import {
   CardHeader,
   CardTitle,
 } from "~/common/components/ui/card";
-import { EyeIcon, MessageCircleIcon } from "lucide-react";
+import {
+  EyeIcon,
+  MessageCircleIcon,
+  HeartIcon,
+  ThumbsUpIcon,
+} from "lucide-react";
 import { Link } from "react-router";
 import { Separator } from "~/common/components/ui/separator";
 
@@ -22,6 +27,7 @@ interface NoteCardProps {
   stats: {
     views: number;
     comments: number;
+    likes: number;
   };
 }
 
@@ -65,7 +71,7 @@ export function NoteCard({
           />
           <span className="font-medium text-foreground">{author.name}</span>
         </div>
-        <div className="flex items-center gap-4 text-muted-foreground">
+        <div className="flex items-center gap-2 text-muted-foreground">
           <div className="flex items-center gap-1">
             <EyeIcon size={13} />
             <span>{stats.views.toLocaleString()}</span>
@@ -73,6 +79,10 @@ export function NoteCard({
           <div className="flex items-center gap-1">
             <MessageCircleIcon size={13} />
             <span>{stats.comments}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <ThumbsUpIcon size={13} />
+            <span>{stats.likes}</span>
           </div>
         </div>
       </CardFooter>

@@ -9,41 +9,117 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarRail,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
 } from "~/common/components/ui/sidebar";
-import { Link, useLocation } from "react-router";
-import {
-  Home,
-  Trash2,
-  Settings,
-  FolderIcon,
-  ChevronDown,
-  FolderClockIcon,
-  FolderLockIcon,
-  FileText,
-  FileEditIcon,
-  FolderKeyIcon,
-} from "lucide-react";
+import { Link } from "react-router";
+import { Home, Trash2, Settings, Archive } from "lucide-react";
 import UserPopOverMenu from "./user-popover";
 import { useState } from "react";
-import { Button } from "~/common/components/ui/button";
-
+import type { TreeItem } from "../type";
+import { SidebarTreeMenu } from "./sidebar-tree-menu";
+import { RenameDialog } from "./rename-dialog";
+import { CreateDialog } from "./create-dialog";
+import { DeleteDialog } from "./delete-dialog";
+import { NotePopover } from "./note-popover";
 export default function NoteSidebar({
   email,
   username,
   avatar,
+  initialItems,
 }: {
   email: string;
   username: string;
   avatar: string;
+  initialItems: TreeItem[];
 }) {
-  const location = useLocation();
-  const [isUnSharedNotesOpen, setIsUnSharedNotesOpen] = useState(false);
-  const [isSharedNotesOpen, setIsSharedNotesOpen] = useState(false);
-  const [isPublicNotesOpen, setIsPublicNotesOpen] = useState(false);
-  const [isPrivateNotesOpen, setIsPrivateNotesOpen] = useState(false);
-  const [isExpiredNotesOpen, setIsExpiredNotesOpen] = useState(false);
+  const [items, setItems] = useState(initialItems);
+  const [renameDialogState, setRenameDialogState] = useState<TreeItem | null>(
+    null
+  );
+  const [deleteDialogState, setDeleteDialogState] = useState<TreeItem | null>(
+    null
+  );
+  const [createDialogState, setCreateDialogState] = useState<{
+    type: "file" | "folder";
+    parentId: string | null;
+    open: boolean;
+  }>({
+    type: "file",
+    parentId: null,
+    open: false,
+  });
+
+  const openRenameDialog = (item: TreeItem) => {
+    setRenameDialogState(item);
+  };
+
+  const handleRenameSubmit = (item: TreeItem, newName: string) => {
+    setItems((prevItems) =>
+      prevItems.map((i) => (i.id === item.id ? { ...i, name: newName } : i))
+    );
+  };
+
+  const openDeleteDialog = (item: TreeItem) => {
+    setDeleteDialogState(item);
+  };
+
+  const handleDeleteSubmit = (item: TreeItem) => {
+    setItems((prevItems) => {
+      const itemsToDelete = new Set([item.id]);
+
+      // 폴더인 경우 하위 항목도 모두 삭제
+      if (item.type === "folder") {
+        const findChildren = (parentId: string) => {
+          prevItems.forEach((i) => {
+            if (i.parentId === parentId) {
+              itemsToDelete.add(i.id);
+              if (i.type === "folder") {
+                findChildren(i.id);
+              }
+            }
+          });
+        };
+        findChildren(item.id);
+      }
+
+      return prevItems.filter((i) => !itemsToDelete.has(i.id));
+    });
+  };
+
+  const openCreateFileDialog = (parentId: string | null) => {
+    setCreateDialogState({
+      type: "file",
+      parentId,
+      open: true,
+    });
+  };
+
+  const openCreateFolderDialog = (parentId: string | null) => {
+    setCreateDialogState({
+      type: "folder",
+      parentId,
+      open: true,
+    });
+  };
+
+  const handleCreate = (
+    type: "file" | "folder",
+    name: string,
+    parentId: string | null
+  ) => {
+    const now = new Date().toISOString();
+    const newItem: TreeItem = {
+      id: crypto.randomUUID(),
+      name,
+      type: type === "file" ? "note" : "folder",
+      parentId,
+      created_at: now,
+      updated_at: now,
+      ...(type === "file" ? { content: "" } : {}),
+    };
+
+    setItems((prevItems) => [...prevItems, newItem]);
+  };
+
   return (
     <div>
       <Sidebar collapsible="icon">
@@ -61,125 +137,37 @@ export default function NoteSidebar({
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-
-          <SidebarGroup className="flex-1 overflow-hidden">
-            <div className="flex items-center justify-between pr-1">
-              <SidebarGroupLabel>Archive</SidebarGroupLabel>
-              <Button variant="ghost" size="icon" className="h-6 w-6" asChild>
-                <Link to="/wisp/notes/edit">
-                  <FileEditIcon className="size-4" />
-                </Link>
-              </Button>
-            </div>
-
-            <SidebarGroupContent className="h-[calc(100vh-16rem)] custom-scrollbar">
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
                     <Link to="/wisp/notes">
-                      <FolderIcon className="size-4" />
-                      <span>All Notes</span>
+                      <Archive className="size-4" />
+                      <span>Archive</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
-              <SidebarMenu className="group-data-[collapsible=icon]:hidden">
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    onClick={() => setIsUnSharedNotesOpen(!isUnSharedNotesOpen)}
-                  >
-                    <FolderIcon className="size-4" />
-                    <span>작성한 메모</span>
-                    <ChevronDown
-                      className={`ml-auto h-4 w-4 shrink-0 transition-transform duration-200 ${
-                        isUnSharedNotesOpen ? "rotate-180" : ""
-                      } group-data-[collapsible=icon]:hidden`}
-                    />
-                  </SidebarMenuButton>
-                  {isUnSharedNotesOpen && (
-                    <SidebarMenuSub>
-                      <SidebarMenuSubItem>
-                        <SidebarMenuButton asChild>
-                          <Link to="/oscar2272/notes">
-                            <FileText className="size-4" />
-                            <span>All Notes</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuSubItem>
-                    </SidebarMenuSub>
-                  )}
-                </SidebarMenuItem>
-              </SidebarMenu>
-              <SidebarMenu className="group-data-[collapsible=icon]:hidden">
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    onClick={() => setIsSharedNotesOpen(!isSharedNotesOpen)}
-                  >
-                    <FolderClockIcon className="size-4" />
-                    <span>공유한 메모</span>
-                    <ChevronDown
-                      className={`ml-auto h-4 w-4 shrink-0 transition-transform duration-200 ${
-                        isSharedNotesOpen ? "rotate-180" : ""
-                      } group-data-[collapsible=icon]:hidden`}
-                    />
-                  </SidebarMenuButton>
-                  {isSharedNotesOpen && (
-                    <SidebarMenuSub>
-                      <SidebarMenuSubItem>
-                        <SidebarMenu>
-                          <SidebarMenuItem>
-                            <SidebarMenuButton
-                              onClick={() =>
-                                setIsPrivateNotesOpen(!isPrivateNotesOpen)
-                              }
-                            >
-                              <FolderKeyIcon className="size-4" />
-                              <span>링크용 메모</span>
-                              <ChevronDown
-                                className={`ml-auto h-4 w-4 shrink-0 transition-transform duration-200 ${
-                                  isPrivateNotesOpen ? "rotate-180" : ""
-                                } group-data-[collapsible=icon]:hidden`}
-                              />
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
-                          <SidebarMenuItem>
-                            <SidebarMenuButton
-                              onClick={() =>
-                                setIsPublicNotesOpen(!isPublicNotesOpen)
-                              }
-                            >
-                              <FolderIcon className="size-4" />
-                              <span>공개된 메모</span>
-                              <ChevronDown
-                                className={`ml-auto h-4 w-4 shrink-0 transition-transform duration-200 ${
-                                  isPublicNotesOpen ? "rotate-180" : ""
-                                } group-data-[collapsible=icon]:hidden`}
-                              />
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
-                        </SidebarMenu>
-                      </SidebarMenuSubItem>
-                    </SidebarMenuSub>
-                  )}
-                </SidebarMenuItem>
-              </SidebarMenu>
-              <SidebarMenu className="group-data-[collapsible=icon]:hidden">
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    onClick={() => setIsExpiredNotesOpen(!isExpiredNotesOpen)}
-                  >
-                    <FolderLockIcon className="size-4" />
-                    <span>Expired Notes</span>
-                    <ChevronDown
-                      className={`ml-auto h-4 w-4 shrink-0 transition-transform duration-200 ${
-                        isExpiredNotesOpen ? "rotate-180" : ""
-                      } group-data-[collapsible=icon]:hidden`}
-                    />
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          <SidebarGroup className="flex-1 overflow-hidden">
+            <div className="flex items-center justify-between">
+              <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+              <NotePopover
+                items={items}
+                onCreateFileDialog={openCreateFileDialog}
+                onCreateFolderDialog={openCreateFolderDialog}
+              />
+            </div>
+
+            <SidebarGroupContent className="h-[calc(100vh-16rem)] custom-scrollbar">
+              <SidebarTreeMenu
+                items={items}
+                onRename={openRenameDialog}
+                onDelete={openDeleteDialog}
+                onCreateFileDialog={openCreateFileDialog}
+                onCreateFolderDialog={openCreateFolderDialog}
+              />
             </SidebarGroupContent>
           </SidebarGroup>
 
@@ -223,6 +211,30 @@ export default function NoteSidebar({
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>
+
+      <RenameDialog
+        item={renameDialogState}
+        open={renameDialogState !== null}
+        onOpenChange={(open) => !open && setRenameDialogState(null)}
+        onRename={handleRenameSubmit}
+      />
+
+      <CreateDialog
+        type={createDialogState.type}
+        parentId={createDialogState.parentId}
+        open={createDialogState.open}
+        onOpenChange={(open) =>
+          setCreateDialogState((prev) => ({ ...prev, open }))
+        }
+        onCreate={handleCreate}
+      />
+
+      <DeleteDialog
+        item={deleteDialogState}
+        open={deleteDialogState !== null}
+        onOpenChange={(open) => !open && setDeleteDialogState(null)}
+        onDelete={handleDeleteSubmit}
+      />
     </div>
   );
 }

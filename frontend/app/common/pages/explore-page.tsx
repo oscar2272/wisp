@@ -26,6 +26,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       stats: {
         views: 128,
         comments: 3,
+        likes: 10,
       },
     },
     {
@@ -40,6 +41,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       stats: {
         views: 300,
         comments: 5,
+        likes: 11,
       },
     },
     {
@@ -54,6 +56,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       stats: {
         views: 128,
         comments: 3,
+        likes: 8,
       },
     },
     {
@@ -68,6 +71,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       stats: {
         views: 128,
         comments: 3,
+        likes: 13,
       },
     },
   ];
