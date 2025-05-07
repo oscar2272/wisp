@@ -4,14 +4,16 @@ from django.contrib.auth.models import (
   PermissionsMixin,
   BaseUserManager
 )
-from core.utils.generate_name import generate_unique_username
 import uuid
 import os
+
 
 def profile_image_file_path(instance, filename):
     ext = filename.split('.')[-1]
     filename = f"profile-{uuid.uuid4()}.{ext}"
     return os.path.join("uploads/profiles/", filename)
+
+
 class UserManager(BaseUserManager):
     """Manager for users"""
     def create_user(self, email, password=None, **extra_fields):
@@ -28,7 +30,6 @@ class UserManager(BaseUserManager):
 
         user.save(using=self._db)
         return user
-
 
     def create_superuser(self, email, password):
         """Create and return a new superuser"""

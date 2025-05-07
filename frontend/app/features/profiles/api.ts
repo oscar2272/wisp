@@ -1,8 +1,9 @@
 import type { UserProfile } from "./type";
 import { makeSSRClient } from "~/supa-client";
+import { jwtDecode } from "jwt-decode";
 // app/features/profiles/api.ts
-const BASE_URL = "http://127.0.0.1:8000/";
-const USER_API_URL = `${BASE_URL}/api/user`;
+const BASE_URL = "http://127.0.0.1:8000";
+const USER_API_URL = `${BASE_URL}/api/users`;
 
 export async function SignInOrSignUp(token: string) {
   const res = await fetch(`${USER_API_URL}/sync/`, {
@@ -67,8 +68,28 @@ export async function getUserProfileWithEmail(token: string) {
   return res.json();
 }
 
-export async function getToken(request: Request) {
+let sessionCache: { token: string | null } | null = null;
+
+export async function getToken(request: Request): Promise<string | null> {
+  const cached = sessionCache?.token;
+
+  if (cached) {
+    try {
+      const { exp } = jwtDecode<{ exp: number }>(cached);
+      const now = Math.floor(Date.now() / 1000);
+      if (exp > now) {
+        return cached;
+      } else {
+      }
+    } catch (err) {}
+  }
+
+  // 토큰이 없거나 만료됐으면 새로 요청
   const { client } = makeSSRClient(request);
   const { data } = await client.auth.getSession();
-  return data.session?.access_token ?? null;
+  const token = data.session?.access_token ?? null;
+
+  sessionCache = { token };
+
+  return token;
 }

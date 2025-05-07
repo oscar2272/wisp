@@ -8,7 +8,8 @@ import {
 } from "~/common/components/ui/dialog";
 import { Button } from "~/common/components/ui/button";
 import type { TreeItem } from "../type";
-
+import { useFetcher } from "react-router";
+import { useToken } from "~/context/token-context";
 interface DeleteDialogProps {
   item: TreeItem | null;
   open: boolean;
@@ -22,11 +23,22 @@ export function DeleteDialog({
   onOpenChange,
   onDelete,
 }: DeleteDialogProps) {
+  if (!item) return null;
+  const token = useToken();
+  const fetcher = useFetcher();
   const handleDelete = () => {
-    if (item) {
-      onDelete(item);
-      onOpenChange(false);
-    }
+    if (!item) return;
+
+    fetcher.submit(
+      { id: item.id, token },
+      {
+        method: "delete",
+        action: "/api/notes-action",
+      }
+    );
+
+    onDelete(item);
+    onOpenChange(false);
   };
 
   return (

@@ -10,72 +10,11 @@ import { getLoggedInUserId } from "~/features/profiles/queries";
 import type { Route } from "./+types/sidebar-layout";
 import { getUserProfileWithEmail } from "~/features/profiles/api";
 import { getToken } from "~/features/profiles/api";
-import type { UserProfileWithEmail } from "~/features/profiles/type";
 import type { TreeItem } from "../type";
-import { OverlayProvider } from "@toss/use-overlay";
-export const loader = async ({ request }: Route.LoaderArgs) => {
-  const initialItems: TreeItem[] = [
-    {
-      id: "folder-root",
-      parentId: null,
-      type: "folder",
-      name: "workspace",
-      created_at: "2024-01-01T00:00:00Z",
-      updated_at: "2024-01-01T00:00:00Z",
-    },
-    {
-      id: "folder-1",
-      parentId: "folder-root",
-      type: "folder",
-      name: "docs",
-      created_at: "2024-01-01T00:00:00Z",
-      updated_at: "2024-01-01T00:00:00Z",
-    },
-    {
-      id: "note-1",
-      parentId: "folder-1",
-      type: "note",
-      name: "readme.md",
-      content: "# README",
-      created_at: "2024-01-02T00:00:00Z",
-      updated_at: "2024-01-02T00:00:00Z",
-    },
-    {
-      id: "folder-2",
-      parentId: "folder-root",
-      type: "folder",
-      name: "guide",
-      created_at: "2024-01-01T00:00:00Z",
-      updated_at: "2024-01-01T00:00:00Z",
-    },
-    {
-      id: "note-2",
-      parentId: "folder-2",
-      type: "note",
-      name: "usage.txt",
-      content: "사용법 내용",
-      created_at: "2024-01-02T00:00:00Z",
-      updated_at: "2024-01-02T00:00:00Z",
-    },
-    {
-      id: "folder-root-2",
-      parentId: null,
-      type: "folder",
-      name: "workspace2",
-      created_at: "2024-01-01T00:00:00Z",
-      updated_at: "2024-01-01T00:00:00Z",
-    },
-    {
-      id: "note-2-1",
-      parentId: "folder-root-2",
-      type: "note",
-      name: "readme.md",
-      content: "# README",
-      created_at: "2024-01-02T00:00:00Z",
-      updated_at: "2024-01-02T00:00:00Z",
-    },
-  ];
+import { getNotesSidebar } from "../api";
+import { TokenContext } from "~/context/token-context";
 
+export const loader = async ({ request }: Route.LoaderArgs) => {
   const url = new URL(request.url);
   const pathname = url.pathname;
   const { client } = makeSSRClient(request);
@@ -91,10 +30,11 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     if (!token) {
       return redirect("/auth/login");
     } else {
-      const profile: UserProfileWithEmail = await getUserProfileWithEmail(
-        token
-      );
-      return { userId, profile, initialItems };
+      const [profile, initialItems] = await Promise.all([
+        getUserProfileWithEmail(token),
+        getNotesSidebar(token),
+      ]);
+      return { profile, initialItems, token };
     }
   }
 };
@@ -102,21 +42,28 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
   const profile = loaderData?.profile;
   const initialItems = loaderData?.initialItems;
+  const token = loaderData?.token;
   return (
-    <SidebarProvider>
-      <NoteSidebar
-        email={profile!.email}
-        username={profile!.name}
-        avatar={profile!.avatar}
-        initialItems={initialItems as TreeItem[]}
-      />
-      <SidebarInset>
-        <div className="flex min-h-screen w-full">
-          <main className="flex-1">
-            <Outlet context={{ profile }} />
-          </main>
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+    <TokenContext.Provider value={token!}>
+      <SidebarProvider>
+        <NoteSidebar
+          email={profile!.email}
+          username={profile!.name}
+          avatar={profile!.avatar}
+          initialItems={initialItems as TreeItem[]}
+        />
+        <SidebarInset>
+          <div className="flex min-h-screen w-full">
+            <main className="flex-1">
+              <Outlet context={{ profile }} />
+            </main>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </TokenContext.Provider>
   );
+}
+
+export function HydrateFallback() {
+  return <p>Loading Game...</p>;
 }

@@ -7,10 +7,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from core.utils.generate_name import generate_unique_username
 from django.contrib.auth import get_user_model
-from rest_framework.permissions import AllowAny
 
 
-class SyncUserView(APIView):
+class SignUpUserView(APIView):
     authentication_classes = [SupabaseJWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
@@ -50,6 +49,7 @@ class ManageProfileView(generics.RetrieveUpdateAPIView):
     def get_queryset(self):
         return Profile.objects.filter(user=self.request.user)
 
+
 class ManageRetrieveProfileWithEmailView(generics.RetrieveAPIView):
     serializer_class = ProfileWithEmailSerializer
     authentication_classes = [SupabaseJWTAuthentication]
@@ -60,4 +60,3 @@ class ManageRetrieveProfileWithEmailView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return Profile.objects.filter(user=self.request.user)
-

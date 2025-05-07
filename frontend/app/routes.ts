@@ -16,6 +16,7 @@ export default [
   ]),
 
   layout("features/notes/layouts/sidebar-layout.tsx", [
+    route("/api/notes-action", "features/notes/pages/note-action.tsx"),
     route("/wisp/notes", "features/notes/pages/note-home-page.tsx"),
     route("/wisp/notes/edit", "features/notes/pages/note-edit-page.tsx"),
     route("/wisp/notes/:slug", "features/notes/pages/note-page.tsx"),

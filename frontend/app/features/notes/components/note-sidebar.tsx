@@ -10,7 +10,7 @@ import {
   SidebarFooter,
   SidebarRail,
 } from "~/common/components/ui/sidebar";
-import { Link } from "react-router";
+import { Link, useFetcher } from "react-router";
 import { Home, Trash2, Settings, Archive } from "lucide-react";
 import UserPopOverMenu from "./user-popover";
 import { useState } from "react";
@@ -20,6 +20,7 @@ import { RenameDialog } from "./rename-dialog";
 import { CreateDialog } from "./create-dialog";
 import { DeleteDialog } from "./delete-dialog";
 import { NotePopover } from "./note-popover";
+import { Skeleton } from "~/common/components/ui/skeleton";
 export default function NoteSidebar({
   email,
   username,
@@ -31,6 +32,12 @@ export default function NoteSidebar({
   avatar: string;
   initialItems: TreeItem[];
 }) {
+  const fetcher = useFetcher();
+  const notes =
+    fetcher.state === "idle" && fetcher.data
+      ? fetcher.data.notes
+      : initialItems;
+
   const [items, setItems] = useState(initialItems);
   const [renameDialogState, setRenameDialogState] = useState<TreeItem | null>(
     null
@@ -39,11 +46,11 @@ export default function NoteSidebar({
     null
   );
   const [createDialogState, setCreateDialogState] = useState<{
-    type: "file" | "folder";
+    type: "note" | "folder";
     parentId: string | null;
     open: boolean;
   }>({
-    type: "file",
+    type: "note",
     parentId: null,
     open: false,
   });
@@ -87,7 +94,7 @@ export default function NoteSidebar({
 
   const openCreateFileDialog = (parentId: string | null) => {
     setCreateDialogState({
-      type: "file",
+      type: "note",
       parentId,
       open: true,
     });
@@ -100,26 +107,20 @@ export default function NoteSidebar({
       open: true,
     });
   };
-
   const handleCreate = (
-    type: "file" | "folder",
+    type: "note" | "folder",
     name: string,
-    parentId: string | null
+    parentId: string | null,
+    id: string
   ) => {
-    const now = new Date().toISOString();
     const newItem: TreeItem = {
-      id: crypto.randomUUID(),
+      id: id, // optimistic update 용
       name,
-      type: type === "file" ? "note" : "folder",
+      type,
       parentId,
-      created_at: now,
-      updated_at: now,
-      ...(type === "file" ? { content: "" } : {}),
     };
-
     setItems((prevItems) => [...prevItems, newItem]);
   };
-
   return (
     <div>
       <Sidebar collapsible="icon">
@@ -154,7 +155,7 @@ export default function NoteSidebar({
             <div className="flex items-center justify-between">
               <SidebarGroupLabel>Workspace</SidebarGroupLabel>
               <NotePopover
-                items={items}
+                items={notes}
                 onCreateFileDialog={openCreateFileDialog}
                 onCreateFolderDialog={openCreateFolderDialog}
               />
@@ -162,7 +163,7 @@ export default function NoteSidebar({
 
             <SidebarGroupContent className="h-[calc(100vh-16rem)] custom-scrollbar">
               <SidebarTreeMenu
-                items={items}
+                items={notes}
                 onRename={openRenameDialog}
                 onDelete={openDeleteDialog}
                 onCreateFileDialog={openCreateFileDialog}

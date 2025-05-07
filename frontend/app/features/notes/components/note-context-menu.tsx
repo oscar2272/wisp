@@ -13,8 +13,8 @@ interface NoteContextMenuProps {
   item: TreeItem;
   onRename?: (item: TreeItem) => void;
   onDelete?: (item: TreeItem) => void;
-  onCreateFileDialog?: (parentId: string) => void;
-  onCreateFolderDialog?: (parentId: string) => void;
+  onCreateFileDialog?: (parentId: string | null) => void;
+  onCreateFolderDialog?: (parentId: string | null) => void;
 }
 
 export function NoteContextMenu({

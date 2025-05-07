@@ -1,7 +1,8 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-from app.user.models import User
+from user.models import User
+
 
 class Folder(models.Model):
     owner = models.ForeignKey(
@@ -9,7 +10,7 @@ class Folder(models.Model):
         on_delete=models.CASCADE,
         related_name="folders"
     )
-    name = models.CharField(max_length=255)
+    file_name = models.CharField(max_length=255)
     parent = models.ForeignKey(
         "self", null=True, blank=True,
         on_delete=models.CASCADE,
@@ -17,12 +18,13 @@ class Folder(models.Model):
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["created_at"]
 
     def __str__(self):
-        return self.name
+        return self.file_name
 
 
 class Note(models.Model):
@@ -32,7 +34,7 @@ class Note(models.Model):
         on_delete=models.CASCADE,
         related_name="notes"
     )
-    folder = models.ForeignKey(Folder, null=True, blank=True, on_delete=models.SET_NULL, related_name="notes")
+    folder = models.ForeignKey(Folder, null=True, blank=True, on_delete=models.CASCADE, related_name="notes")
     # 메모 본문
     file_name = models.CharField(max_length=255, blank=True)
     content = models.TextField()
@@ -49,7 +51,7 @@ class Note(models.Model):
 
     # 삭제 관련
     deleted_at = models.DateTimeField(null=True, blank=True)  # soft delete
-    is_deleted = models.BooleanField(default=False) #soft delete
+    is_deleted = models.BooleanField(default=False)  # soft delete
 
     # 생성 시각
     created_at = models.DateTimeField(auto_now_add=True)
@@ -69,7 +71,6 @@ class Note(models.Model):
     @property
     def can_access(self):
         return self.is_shared and not self.has_expired()
-
 
     def __str__(self):
         return f"{self.slug or 'Untitled'} ({'expired' if self.has_expired() else 'active'})"

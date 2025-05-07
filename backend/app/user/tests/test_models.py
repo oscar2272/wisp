@@ -43,7 +43,7 @@ def test_profile_str_returns_user_email():
         email="name@example.com",
     )
     name = generate_unique_username()
-    profile = Profile.objects.create(user=user, name=name, avatar_url="https://example.com/avatar.png")
+    profile = Profile.objects.create(user=user, name=name, avatar="https://example.com/avatar.png")
     assert str(profile) == name
     assert profile.user == user
     assert profile.created_at is not None

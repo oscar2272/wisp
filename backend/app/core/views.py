@@ -3,6 +3,8 @@ from rest_framework.exceptions import AuthenticationFailed
 from core.utils.jwt import verify_supabase_jwt
 from user.models import User, Profile
 from core.utils.generate_name import generate_unique_username
+
+
 class SupabaseJWTAuthentication(BaseAuthentication):
     def authenticate(self, request):
         auth_header = request.META.get("HTTP_AUTHORIZATION")

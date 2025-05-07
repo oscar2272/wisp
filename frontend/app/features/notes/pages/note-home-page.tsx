@@ -55,7 +55,6 @@ const mockNotes = [
 
 export default function NoteHomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
 
   const mainTab = searchParams.get("tab") || "created";
   const subFilter = searchParams.get("filter") || "all";
