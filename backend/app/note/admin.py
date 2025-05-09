@@ -7,6 +7,7 @@ class NoteAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "file_name",
+        "title",
         "author",
         "folder",
         "likes_count",

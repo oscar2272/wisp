@@ -4,8 +4,17 @@ import { Input } from "~/common/components/ui/input";
 import { Textarea } from "~/common/components/ui/textarea";
 import { Label } from "~/common/components/ui/label";
 import { FileTextIcon } from "lucide-react";
+import type { Route } from "./+types/note-edit-page";
 
-export default function NoteNewPage() {
+export const loader = async ({ params }: Route.LoaderArgs) => {
+  const note = {
+    title: "테스트 메모",
+    content: "content",
+  };
+  return { note };
+};
+export default function NoteNewPage({ loaderData }: Route.ComponentProps) {
+  const { note } = loaderData;
   return (
     <div className="mx-auto max-w-3xl py-10 px-4">
       <div className="mb-8 flex items-center gap-2">
@@ -15,11 +24,12 @@ export default function NoteNewPage() {
 
       <Form method="post" className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="file_name">File Name</Label>
+          <Label htmlFor="title">Title</Label>
           <Input
-            id="file_name"
-            name="file_name"
-            placeholder="File Name"
+            id="title"
+            name="title"
+            defaultValue={note.title}
+            placeholder="Title"
             className="text-lg"
             required
           />
@@ -29,6 +39,7 @@ export default function NoteNewPage() {
           <Textarea
             id="content"
             name="content"
+            defaultValue={note.content}
             placeholder="Content"
             className="h-full resize-none font-mono overflow-y-auto custom-scrollbar"
             required

@@ -6,10 +6,10 @@ import {
   SidebarMenuSubItem,
 } from "~/common/components/ui/sidebar";
 import { FileText, FolderIcon, ChevronDown } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
 import { useState } from "react";
 import { NoteContextMenu } from "./note-context-menu";
-import type { TreeNode } from "../utils/build-tree";
+import type { TreeNode } from "../../utils/build-tree";
 
 interface Props {
   node: TreeNode;
@@ -29,7 +29,8 @@ export function SidebarTreeNode({
   const isFolder = node.type === "folder";
   const hasChildren = node.children && node.children.length > 0;
   const [isFolderOpen, setIsFolderOpen] = useState(false);
-
+  const params = useParams();
+  const isActive = params.slug === node.id && !isFolder;
   return (
     <SidebarMenuItem className="group-data-[collapsible=icon]:hidden">
       <NoteContextMenu
@@ -42,6 +43,7 @@ export function SidebarTreeNode({
         <SidebarMenuButton
           onClick={() => isFolder && setIsFolderOpen(!isFolderOpen)}
           asChild={!isFolder}
+          isActive={isActive}
         >
           {isFolder ? (
             <>

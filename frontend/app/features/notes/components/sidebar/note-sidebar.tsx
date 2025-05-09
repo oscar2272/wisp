@@ -14,7 +14,7 @@ import { Link, useFetcher } from "react-router";
 import { Home, Trash2, Settings, Archive } from "lucide-react";
 import UserPopOverMenu from "./user-popover";
 import { useState } from "react";
-import type { TreeItem } from "../type";
+import type { TreeItem } from "../../type";
 import { SidebarTreeMenu } from "./sidebar-tree-menu";
 import { RenameDialog } from "./rename-dialog";
 import { CreateDialog } from "./create-dialog";
@@ -178,7 +178,7 @@ export default function NoteSidebar({
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <Link to="/oscar2272/trash">
+                    <Link to="/wisp/notes/trash">
                       <Trash2 className="size-4" />
                       <span>Trash</span>
                     </Link>

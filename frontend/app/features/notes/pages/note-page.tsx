@@ -6,19 +6,70 @@ import {
   TrashIcon,
   ClockIcon,
   LockIcon,
+  ThumbsUpIcon,
+  MessageCircleIcon,
 } from "lucide-react";
 import { Badge } from "~/common/components/ui/badge";
+import { ShareDialog } from "../components/share-dialog";
+import type { Route } from "./+types/note-page";
+import { DateTime } from "luxon";
 
-export default function NotePage() {
+export async function action({ request }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const shareType = formData.get("shareType");
+  const expiryDate = formData.get("expiryDate");
+  // API 호출 또는 상태 업데이트 등 필요한 작업 수행
+}
+export async function loader({ request }: Route.LoaderArgs) {
   const note = {
     file_name: "테스트 메모",
-    created_at: "2024-01-01",
-    expires_at: "2025-05-01",
+    created_at: "2025-04-01T16:58:06.193+09:00",
+    expires_at: "2025-05-16T16:58:06.193+09:00",
     is_shared: true,
+    is_public: true,
     content: "내용 없음",
+    likes_count: 10,
+    comments_count: 10,
   };
-  const expired = new Date(note.expires_at) < new Date();
+  const now = DateTime.now();
+  const expiresAt = DateTime.fromISO(note.expires_at);
+  const isExpired = expiresAt < now;
+  const remainingDays = Math.floor(expiresAt.diff(now, "days").days);
 
+  let expiryBadge: {
+    label: string;
+    variant: "secondary" | "destructive" | "default";
+  } | null = null;
+  let statusBadge: {
+    label: string;
+    variant: "outline" | "secondary" | "destructive" | "default";
+  } = {
+    label: "",
+    variant: "outline",
+  };
+
+  if (!note.is_shared) {
+    statusBadge = { label: "비공개", variant: "outline" };
+    expiryBadge = null; // 비공개는 만료 의미 없음
+  } else if (note.is_public) {
+    statusBadge = { label: "공개중", variant: "secondary" };
+    expiryBadge = isExpired
+      ? { label: "만료됨", variant: "destructive" }
+      : { label: `${remainingDays}일 남음`, variant: "secondary" };
+  } else {
+    statusBadge = { label: "공유중", variant: "secondary" };
+    expiryBadge = isExpired
+      ? { label: "만료됨", variant: "destructive" }
+      : { label: `${remainingDays}일 남음`, variant: "secondary" };
+  }
+
+  return { note, statusBadge, expiryBadge, isExpired };
+}
+export default function NotePage({ loaderData }: Route.ComponentProps) {
+  const note = loaderData!.note;
+  const isExpired = loaderData!.isExpired;
+  const statusBadge = loaderData!.statusBadge;
+  const expiryBadge = loaderData!.expiryBadge;
   return (
     <div className="mx-auto max-w-5xl py-8 px-4 space-y-8">
       <div className="space-y-4">
@@ -27,34 +78,32 @@ export default function NotePage() {
             {note.file_name || "제목 없음"}
           </h1>
           <div className="flex flex-row justify-between items-center gap-4">
-            {note.is_shared ? (
-              expired ? (
-                <Badge variant="destructive">만료됨</Badge>
-              ) : (
-                <Badge variant="secondary">
-                  공유됨 (
-                  {Math.floor(
-                    (new Date(note.expires_at).getTime() - Date.now()) /
-                      86400000
-                  )}
-                  일 남음)
-                </Badge>
-              )
-            ) : (
-              <Badge variant="outline">
-                <LockIcon className="h-4 w-4" />
-                비공개
+            <div className="flex gap-2 items-center">
+              <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
+              {expiryBadge && (
+                <Badge variant={expiryBadge.variant}>{expiryBadge.label}</Badge>
+              )}
+              <div className="w-px h-4 bg-border mx-2" />
+              <Badge variant="secondary" className="flex gap-1 items-center">
+                <ThumbsUpIcon className="size-3" />
+                {note.likes_count}
               </Badge>
-            )}
+              <Badge variant="secondary" className="flex gap-1 items-center">
+                <MessageCircleIcon className="size-3" />
+                {note.comments_count}
+              </Badge>
+            </div>
+
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
                 <CalendarIcon className="h-4 w-4" />
-                최신: {new Date(note.created_at).toLocaleDateString()}
+                최신: {DateTime.fromISO(note.created_at).toFormat("yyyy.MM.dd")}
               </div>
-              {note.is_shared && !expired && (
+              {note.is_shared && !isExpired && (
                 <div className="flex items-center gap-1">
                   <ClockIcon className="h-4 w-4" />
-                  만료: {new Date(note.expires_at).toLocaleDateString()}
+                  만료:{" "}
+                  {DateTime.fromISO(note.expires_at).toFormat("yyyy.MM.dd")}
                 </div>
               )}
             </div>
@@ -77,17 +126,15 @@ export default function NotePage() {
             삭제
           </Button>
         </div>
-        {!note.is_shared ? (
-          <Button>
-            <ShareIcon className="mr-2 h-4 w-4" />
-            공유하기
-          </Button>
-        ) : (
-          <Button variant="secondary" disabled={expired}>
-            <ShareIcon className="mr-2 h-4 w-4" />
-            링크 복사
-          </Button>
-        )}
+        <div className="flex gap-2">
+          <ShareDialog />
+          {!note.is_shared ? (
+            <Button variant="secondary" disabled={isExpired}>
+              <ShareIcon className="mr-2 h-4 w-4" />
+              링크 복사
+            </Button>
+          ) : null}
+        </div>
       </div>
     </div>
   );

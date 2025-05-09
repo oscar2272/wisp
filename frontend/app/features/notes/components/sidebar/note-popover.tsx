@@ -5,8 +5,7 @@ import {
 } from "~/common/components/ui/popover";
 import { Button } from "~/common/components/ui/button";
 import { Edit, FileText, FolderIcon } from "lucide-react";
-import type { TreeItem } from "../type";
-import { CreateDialog } from "./create-dialog";
+import type { TreeItem } from "../../type";
 import { SidebarMenuButton } from "~/common/components/ui/sidebar";
 
 export function NotePopover({

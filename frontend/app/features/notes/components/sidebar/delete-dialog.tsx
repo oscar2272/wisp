@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "~/common/components/ui/dialog";
 import { Button } from "~/common/components/ui/button";
-import type { TreeItem } from "../type";
+import type { TreeItem } from "../../type";
 import { useFetcher } from "react-router";
 import { useToken } from "~/context/token-context";
 interface DeleteDialogProps {
@@ -58,7 +58,11 @@ export function DeleteDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             취소
           </Button>
-          <Button variant="destructive" onClick={handleDelete}>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={fetcher.state !== "idle"}
+          >
             삭제
           </Button>
         </DialogFooter>

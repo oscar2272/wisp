@@ -26,7 +26,6 @@ export function NoteContextMenu({
   onCreateFolderDialog,
 }: NoteContextMenuProps) {
   const isFolder = item.type === "folder";
-
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>

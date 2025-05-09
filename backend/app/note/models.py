@@ -16,7 +16,8 @@ class Folder(models.Model):
         on_delete=models.CASCADE,
         related_name="children"
     )
-
+    is_deleted = models.BooleanField(default=False)  # soft delete
+    deleted_at = models.DateTimeField(null=True, blank=True)  # soft delete
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -37,6 +38,7 @@ class Note(models.Model):
     folder = models.ForeignKey(Folder, null=True, blank=True, on_delete=models.CASCADE, related_name="notes")
     # 메모 본문
     file_name = models.CharField(max_length=255, blank=True)
+    title = models.CharField(max_length=255, blank=True, null=True)
     content = models.TextField()
     likes_count = models.PositiveIntegerField(default=0)
     # 공유 관련 필드
@@ -81,7 +83,6 @@ class NoteSeen(models.Model):
     seen_at = models.DateTimeField(auto_now_add=True)
     ip_address = models.GenericIPAddressField(protocol="both")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
-
     # class Meta:
     #     indexes = [
     #         models.Index(fields=["note", "user", "ip_address", "viewed_at"]),

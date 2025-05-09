@@ -90,7 +90,7 @@ export default function NoteHomePage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto py-10 px-4 space-y-6">
+    <div className="max-w-5xl mx-auto py-10 px-4 space-y-6">
       <h1 className="text-2xl font-bold">내 메모 홈</h1>
 
       {/* 메인 탭 */}
@@ -122,7 +122,7 @@ export default function NoteHomePage() {
               <SelectContent>
                 <SelectItem value="all">전체</SelectItem>
                 <SelectItem value="public">공개된 메모</SelectItem>
-                <SelectItem value="private">비공개 링크 공유</SelectItem>
+                <SelectItem value="private">링크 공유</SelectItem>
                 <SelectItem value="expired">만료된 메모</SelectItem>
               </SelectContent>
             </Select>
@@ -147,8 +147,8 @@ export default function NoteHomePage() {
             <TableRow>
               <TableHead>제목</TableHead>
               <TableHead>유형</TableHead>
-              <TableHead className="text-right">추천</TableHead>
               <TableHead className="text-right">수정일</TableHead>
+              <TableHead className="text-right">만료일</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -156,8 +156,10 @@ export default function NoteHomePage() {
               <TableRow key={note.id}>
                 <TableCell className="font-medium">{note.title}</TableCell>
                 <TableCell>{note.type}</TableCell>
-                <TableCell className="text-right">{note.likesCount}</TableCell>
                 <TableCell className="text-right">{note.updatedAt}</TableCell>
+                <TableCell className="text-right">
+                  {note.isShared ? note.updatedAt : "-"}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

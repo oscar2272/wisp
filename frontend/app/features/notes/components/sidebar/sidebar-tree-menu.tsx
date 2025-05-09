@@ -1,7 +1,7 @@
 // components/sidebar-tree-menu.tsx
 import { SidebarMenu } from "~/common/components/ui/sidebar";
-import { buildTree } from "../utils/build-tree";
-import type { TreeItem } from "../type";
+import { buildTree } from "../../utils/build-tree";
+import type { TreeItem } from "../../type";
 import { useMemo } from "react";
 import { SidebarTreeNode } from "./sidebar-tree-node";
 

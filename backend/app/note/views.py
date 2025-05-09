@@ -27,7 +27,7 @@ class TreeItemListRetrieveView(APIView):
 
     def get(self, request):
         user = request.user
-        folders = Folder.objects.filter(owner=user)
+        folders = Folder.objects.filter(owner=user, is_deleted=False)
         notes = Note.objects.filter(author=user, is_deleted=False)
 
         folder_data = TreeItemFolderSerializer(folders, many=True).data
@@ -60,7 +60,8 @@ class FolderDeleteView(APIView):
 
     def delete(self, request, pk):
         folder = get_object_or_404(Folder, id=pk, owner=request.user)
-        folder.delete()
+        folder.is_deleted = True
+        folder.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -87,7 +88,8 @@ class NoteDeleteView(APIView):
 
     def delete(self, request, pk):
         note = get_object_or_404(Note, id=pk, author=request.user)
-        note.delete()
+        note.is_deleted = True
+        note.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -113,3 +115,19 @@ class FolderRenameView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save(name=request.data.get('name'))
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# 삭제된 폴더와 노트 조회 (soft delete)
+class TrashListView(APIView):
+    authentication_classes = [SupabaseJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        folders = Folder.objects.filter(owner=user, is_deleted=True)
+        notes = Note.objects.filter(author=user, is_deleted=True)
+
+        folder_data = TreeItemFolderSerializer(folders, many=True).data
+        note_data = TreeItemNoteSerializer(notes, many=True).data
+
+        return Response(folder_data + note_data)

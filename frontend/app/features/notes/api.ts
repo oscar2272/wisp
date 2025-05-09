@@ -103,7 +103,7 @@ export async function renameFolder(id: string, name: string, token: string) {
 }
 
 export async function renameNote(id: string, name: string, token: string) {
-  const res = await fetch(`${USER_API_URL}/note/${id}/`, {
+  const res = await fetch(`${USER_API_URL}/note/${id}/rename/`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -116,3 +116,39 @@ export async function renameNote(id: string, name: string, token: string) {
   }
   return res.json();
 }
+
+export async function getTrash(token: string) {
+  const res = await fetch(`${USER_API_URL}/trash/`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to get trash");
+  }
+  return res.json();
+}
+
+export async function permanentlyDeleteByParentId(
+  parentId: string,
+  token: string
+) {
+  const res = await fetch(`${USER_API_URL}/trash/${parentId}/`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to permanently delete by parent id");
+  }
+  return res.json();
+}
+
+// export async function restoreNote(id: string, token: string) {
+//   const res = await fetch(`${USER_API_URL}/note/${id}/restore/`, {
+//     method: "POST",
+//     headers: { Authorization: `Bearer ${token}` },
+//   });
+//   if (!res.ok) {
+//     throw new Error("Failed to restore note");
+//   }
+//   return res.json();
+// }
