@@ -6,7 +6,7 @@ import {
   ContextMenuTrigger,
 } from "~/common/components/ui/context-menu";
 import { FileText, FolderIcon, Pencil, Trash2 } from "lucide-react";
-import type { TreeItem } from "../type";
+import type { TreeItem } from "../../type";
 
 interface NoteContextMenuProps {
   children: React.ReactNode;

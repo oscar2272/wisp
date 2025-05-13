@@ -185,9 +185,9 @@ export default function Navigation({
           <Button asChild variant="secondary">
             <Link to="/auth/login">Login</Link>
           </Button>
-          <Button asChild>
+          {/* <Button asChild>
             <Link to="/auth/join">Join</Link>
-          </Button>
+          </Button> */}
         </div>
       )}
     </div>

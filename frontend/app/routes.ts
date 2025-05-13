@@ -14,7 +14,6 @@ export default [
       route("/explore/:slug", "common/pages/explore-note-page.tsx"),
     ]),
   ]),
-
   layout("features/notes/layouts/sidebar-layout.tsx", [
     route("/api/notes-action", "features/notes/pages/note-action.tsx"),
     route("/wisp/notes", "features/notes/pages/note-home-page.tsx"),

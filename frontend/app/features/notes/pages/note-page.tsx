@@ -13,6 +13,8 @@ import { Badge } from "~/common/components/ui/badge";
 import { ShareDialog } from "../components/share-dialog";
 import type { Route } from "./+types/note-page";
 import { DateTime } from "luxon";
+import { Link, useParams } from "react-router";
+import TiptapReadOnlyViewer from "../components/tiptap-viewer";
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
@@ -27,7 +29,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     expires_at: "2025-05-16T16:58:06.193+09:00",
     is_shared: true,
     is_public: true,
-    content: "내용 없음",
+    content:
+      "# 제목\n\n**내용**\n\n[링크](https://www.google.com) \n```js\nconsole.log('Hello, world!');\n```\n\n- [ ] 할일1\n- [ ] 할일2\n- [ ] 할일3",
     likes_count: 10,
     comments_count: 10,
   };
@@ -66,6 +69,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   return { note, statusBadge, expiryBadge, isExpired };
 }
 export default function NotePage({ loaderData }: Route.ComponentProps) {
+  const params = useParams(); // 추후에 id로 직접받아올것
   const note = loaderData!.note;
   const isExpired = loaderData!.isExpired;
   const statusBadge = loaderData!.statusBadge;
@@ -111,15 +115,17 @@ export default function NotePage({ loaderData }: Route.ComponentProps) {
         </div>
       </div>
 
-      <div className="min-h-[200px] rounded-lg border bg-muted/40 p-6">
-        <p className="whitespace-pre-wrap text-lg">{note.content}</p>
+      <div className="min-h-[200px] rounded-lg">
+        <TiptapReadOnlyViewer content={note.content} />
       </div>
 
       <div className="flex justify-between border-t pt-6">
         <div className="flex gap-2">
-          <Button variant="outline">
-            <PencilIcon className="mr-2 h-4 w-4" />
-            수정
+          <Button variant="outline" asChild>
+            <Link to={`/wisp/notes/${params.id}/edit`}>
+              <PencilIcon className="mr-2 h-4 w-4" />
+              수정
+            </Link>
           </Button>
           <Button variant="destructive">
             <TrashIcon className="mr-2 h-4 w-4" />

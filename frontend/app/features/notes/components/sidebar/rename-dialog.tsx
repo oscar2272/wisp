@@ -9,7 +9,7 @@ import {
 import { Button } from "~/common/components/ui/button";
 import { Input } from "~/common/components/ui/input";
 import { useEffect, useState } from "react";
-import type { TreeItem } from "../type";
+import type { TreeItem } from "../../type";
 import { Form, useFetcher } from "react-router";
 import { useToken } from "~/context/token-context";
 import { LoaderIcon } from "lucide-react";

@@ -37,9 +37,9 @@ class Note(models.Model):
     )
     folder = models.ForeignKey(Folder, null=True, blank=True, on_delete=models.CASCADE, related_name="notes")
     # 메모 본문
-    file_name = models.CharField(max_length=255, blank=True)
-    title = models.CharField(max_length=255, blank=True, null=True)
-    content = models.TextField()
+    file_name = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, default="무제")
+    content = models.TextField(default="메모를 작성해주세요.(마크다운 지원)")
     likes_count = models.PositiveIntegerField(default=0)
     # 공유 관련 필드
     slug = models.SlugField(unique=True, max_length=12, null=True, blank=True)  # slug는 공유할 때 생성
