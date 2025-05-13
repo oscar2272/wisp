@@ -15,11 +15,16 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .models import Folder, Note
-from .serializers import TreeItemFolderSerializer, TreeItemNoteSerializer
+from .serializers import (
+    TreeItemFolderSerializer,
+    TreeItemNoteSerializer,
+    NoteDetailSerializer,
+    NoteDetailEditSerializer
+)
 from core.views import SupabaseJWTAuthentication
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-
+from .models import NoteComment
 
 class TreeItemListRetrieveView(APIView):
     authentication_classes = [SupabaseJWTAuthentication]
@@ -114,6 +119,37 @@ class FolderRenameView(APIView):
         serializer = TreeItemFolderSerializer(folder, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(name=request.data.get('name'))
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# 1개의 노트(title,content) 조회
+class NoteDetailView(APIView):
+    authentication_classes = [SupabaseJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        note = get_object_or_404(Note, id=pk, author=request.user)
+        commentsCount = NoteComment.objects.filter(note=note).count()
+
+        serializer = NoteDetailSerializer(note, context={'comments_count': commentsCount})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# edit페이지에서 데이터 조회/수정
+class NoteDetailEditView(APIView):
+    authentication_classes = [SupabaseJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        note = get_object_or_404(Note, id=pk, author=request.user)
+        serializer = NoteDetailEditSerializer(note)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, pk):
+        note = get_object_or_404(Note, id=pk, author=request.user)
+        serializer = NoteDetailEditSerializer(note, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(title=request.data.get('title'), content=request.data.get('content'))
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

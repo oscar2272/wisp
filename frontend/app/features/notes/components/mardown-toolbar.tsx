@@ -13,8 +13,6 @@ import {
   Heading3,
   Code2,
   CheckSquare,
-  LinkIcon,
-  Unlink,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import type { Level } from "@tiptap/extension-heading";

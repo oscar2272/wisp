@@ -202,6 +202,9 @@ body {
   .ProseMirror h6 {
     @apply scroll-mt-20;
   }
+  .ProseMirror hr {
+    @apply my-8 border-gray-300 dark:border-gray-700;
+  }
 
   /* Lists */
   .ProseMirror ol {

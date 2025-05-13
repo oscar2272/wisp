@@ -1,3 +1,4 @@
+"use client";
 // app/components/tiptap-editor.tsx
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -20,8 +21,10 @@ const lowlight = createLowlight(common);
 
 export default function TiptapMarkdownEditor({
   onChange,
+  initialContent,
 }: {
   onChange?: (data: { html: string; markdown: string }) => void;
+  initialContent?: string;
 }) {
   const editor = useEditor({
     extensions: [
@@ -48,8 +51,7 @@ export default function TiptapMarkdownEditor({
     ],
     editorProps: {
       attributes: {
-        class:
-          "prose prose-slate dark:prose-invert p-4 min-h-[290px] focus:outline-none",
+        class: "prose prose-slate dark:prose-invert py-4 focus:outline-none",
       },
       handleKeyDown(view, event) {
         if (event.key === "Tab") {
@@ -71,8 +73,7 @@ export default function TiptapMarkdownEditor({
         createMarkdownPastePlugin() // 🔥 새로 만든 붙여넣기 전용 plugin
       );
     },
-    content:
-      "# Hello Tiptap\n\n- [ ] Task\n\n**Bold** ~~Strike~~ ~Underline~ ==Highlight==",
+    content: initialContent,
     onUpdate({ editor }) {
       const html = editor.getHTML();
       const markdown = editor.storage.markdown?.getMarkdown?.() || "";
@@ -81,7 +82,7 @@ export default function TiptapMarkdownEditor({
   });
 
   return (
-    <div className="rounded-lg bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
+    <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm overflow-hidden">
       <TiptapMenuBar editor={editor} />
       <div className="relative h-[calc(100vh-17rem)] overflow-y-auto custom-scrollbar">
         <EditorContent editor={editor} />

@@ -10,7 +10,8 @@ import {
   SidebarFooter,
   SidebarRail,
 } from "~/common/components/ui/sidebar";
-import { Link, useFetcher } from "react-router";
+import { Link, useFetcher, useNavigate, useParams } from "react-router";
+import { toast } from "sonner";
 import { Home, Trash2, Settings, Archive } from "lucide-react";
 import UserPopOverMenu from "./user-popover";
 import { useState } from "react";
@@ -37,6 +38,9 @@ export default function NoteSidebar({
     fetcher.state === "idle" && fetcher.data
       ? fetcher.data.notes
       : initialItems;
+  const navigate = useNavigate();
+  const params = useParams();
+  const currentNoteId = params.id;
 
   const [items, setItems] = useState(initialItems);
   const [renameDialogState, setRenameDialogState] = useState<TreeItem | null>(
@@ -70,26 +74,37 @@ export default function NoteSidebar({
   };
 
   const handleDeleteSubmit = (item: TreeItem) => {
-    setItems((prevItems) => {
-      const itemsToDelete = new Set([item.id]);
+    const itemsToDelete = new Set([item.id]);
 
-      // 폴더인 경우 하위 항목도 모두 삭제
-      if (item.type === "folder") {
-        const findChildren = (parentId: string) => {
-          prevItems.forEach((i) => {
-            if (i.parentId === parentId) {
-              itemsToDelete.add(i.id);
-              if (i.type === "folder") {
-                findChildren(i.id);
-              }
+    // 폴더인 경우 하위 항목도 모두 삭제
+    if (item.type === "folder") {
+      const findChildren = (parentId: string) => {
+        items.forEach((i) => {
+          if (i.parentId === parentId) {
+            itemsToDelete.add(i.id);
+            if (i.type === "folder") {
+              findChildren(i.id);
             }
-          });
-        };
-        findChildren(item.id);
-      }
+          }
+        });
+      };
+      findChildren(item.id);
+    }
 
-      return prevItems.filter((i) => !itemsToDelete.has(i.id));
-    });
+    // 삭제하려는 노트가 현재 노트인 경우 먼저 체크
+    if (currentNoteId) {
+      const isCurrentNoteDeleted =
+        itemsToDelete.has(currentNoteId) ||
+        itemsToDelete.has(`note-${currentNoteId}`);
+
+      if (isCurrentNoteDeleted) {
+        toast.info("현재 보고 있는 노트가 삭제되어 목록 페이지로 이동합니다.");
+        navigate("/wisp/notes", { replace: true });
+      }
+    }
+
+    // 상태 업데이트는 마지막에 한 번만
+    setItems((prevItems) => prevItems.filter((i) => !itemsToDelete.has(i.id)));
   };
 
   const openCreateFileDialog = (parentId: string | null) => {

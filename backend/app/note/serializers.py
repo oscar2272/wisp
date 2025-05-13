@@ -40,3 +40,22 @@ class TreeItemNoteSerializer(serializers.ModelSerializer):
 
     def get_type(self, obj):
         return "note"
+
+
+class NoteDetailSerializer(serializers.ModelSerializer):
+    comments_count = serializers.SerializerMethodField()
+    class Meta:
+        model = Note
+        fields = (
+            "id", "author", "file_name", "title", "content", "likes_count",
+            "slug", "is_shared", "shared_at", "is_public", "expires_at",
+            "created_at", "updated_at", "comments_count"
+        )
+
+    def get_comments_count(self, obj):
+        return self.context.get('comments_count', 0)
+
+class NoteDetailEditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Note
+        fields = ("id", "title", "content")

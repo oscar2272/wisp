@@ -13,6 +13,7 @@ import { getToken } from "~/features/profiles/api";
 import type { TreeItem } from "../type";
 import { getNotesSidebar, getTrash } from "../api";
 import { TokenContext } from "~/context/token-context";
+import { Toaster } from "sonner";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const url = new URL(request.url);
@@ -47,6 +48,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
   const trash = loaderData?.trash;
   return (
     <TokenContext.Provider value={token!}>
+      <Toaster richColors position="top-center" />
       <SidebarProvider>
         <NoteSidebar
           email={profile!.email}
@@ -56,7 +58,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
         />
         <SidebarInset>
           <div className="flex min-h-screen w-full">
-            <main className="flex-1">
+            <main className="w-full">
               <Outlet context={{ profile, trash }} />
             </main>
           </div>
@@ -64,8 +66,4 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
       </SidebarProvider>
     </TokenContext.Provider>
   );
-}
-
-export function HydrateFallback() {
-  return <p>Loading Game...</p>;
 }

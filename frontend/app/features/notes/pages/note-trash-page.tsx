@@ -12,10 +12,6 @@ import {
 } from "~/common/components/ui/card";
 import { Alert, AlertDescription } from "~/common/components/ui/alert";
 
-export function action() {
-  return null;
-}
-
 export default function NoteTrashPage() {
   const { trash } = useOutletContext() as {
     trash: TreeItem[];

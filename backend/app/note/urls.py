@@ -8,12 +8,17 @@ from .views import (
     NoteRenameView,
     FolderRenameView,
     TrashListView,
+    NoteDetailView,
+    NoteDetailEditView,
 )
 
 
 app_name = 'note'
 
 urlpatterns = [
+    path('<int:pk>/', NoteDetailView.as_view(), name='note-detail'),
+    path('<int:pk>/edit/', NoteDetailEditView.as_view(), name='note-edit'),
+
     path('sidebar/', TreeItemListRetrieveView.as_view(), name='sidebar'),
     path('folder/', FolderCreateView.as_view(), name='folder'),
     path('folder/<int:pk>/', FolderDeleteView.as_view(), name='folder-delete'),

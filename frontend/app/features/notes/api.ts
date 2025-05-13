@@ -1,5 +1,6 @@
 import { makeSSRClient } from "~/supa-client";
 import { getToken } from "~/features/profiles/api";
+import type { EditNote, Note } from "./type";
 // app/features/profiles/api.ts
 const BASE_URL = "http://127.0.0.1:8000";
 const USER_API_URL = `${BASE_URL}/api/notes`;
@@ -142,13 +143,52 @@ export async function permanentlyDeleteByParentId(
   return res.json();
 }
 
-// export async function restoreNote(id: string, token: string) {
-//   const res = await fetch(`${USER_API_URL}/note/${id}/restore/`, {
-//     method: "POST",
-//     headers: { Authorization: `Bearer ${token}` },
-//   });
-//   if (!res.ok) {
-//     throw new Error("Failed to restore note");
-//   }
-//   return res.json();
-// }
+export async function getNote(
+  id: string,
+  token: string
+): Promise<{ note: Note }> {
+  const res = await fetch(`${USER_API_URL}/${id}/`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to get note");
+  }
+  const data = await res.json();
+  return { note: data };
+}
+
+export async function getEditNote(
+  id: string,
+  token: string
+): Promise<{ note: EditNote }> {
+  const res = await fetch(`${USER_API_URL}/${id}/edit/`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to get edit note");
+  }
+  const data = await res.json();
+  return { note: data };
+}
+
+export async function updateNote(
+  id: string,
+  title: string,
+  content: string,
+  token: string
+) {
+  const res = await fetch(`${USER_API_URL}/${id}/edit/`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ title, content }),
+  });
+  if (!res.ok) {
+    throw new Error("Failed to update note");
+  }
+  return res.json();
+}
