@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Button } from "~/common/components/ui/button";
-import { LinkIcon, ShareIcon } from "lucide-react";
+import { LinkIcon } from "lucide-react";
 import {
   Dialog,
   DialogClose,
@@ -27,6 +26,7 @@ import { RadioGroup, RadioGroupItem } from "~/common/components/ui/radio-group";
 import { Label } from "~/common/components/ui/label";
 import { useFetcher, useParams } from "react-router";
 import { DateTime } from "luxon";
+import { Button } from "~/common/components/ui/button";
 
 interface ShareDialogProps {
   onSave?: (data: {
@@ -86,7 +86,11 @@ export function ShareDialog({ onSave }: ShareDialogProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>
+        <Button
+          variant="ghost"
+          type="button"
+          className="flex flex-row justify-start w-full items-center  gap-2"
+        >
           <LinkIcon className="mr-2 h-4 w-4" />
           공유 설정
         </Button>

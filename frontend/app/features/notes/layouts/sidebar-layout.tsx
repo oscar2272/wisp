@@ -52,23 +52,17 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
   const initialItems = loaderData?.initialItems;
   const token = loaderData?.token;
   const trash = loaderData?.trash;
-  const fetcher = useFetcher();
-  const isLoading = fetcher.state === "loading";
 
   return (
     <TokenContext.Provider value={token!}>
       <Toaster richColors position="top-center" />
       <SidebarProvider>
-        {isLoading ? (
-          <SidebarSkeletonUI />
-        ) : (
-          <NoteSidebar
-            email={profile!.email}
-            username={profile!.name}
-            avatar={profile!.avatar}
-            initialItems={initialItems as TreeItem[]}
-          />
-        )}
+        <NoteSidebar
+          email={profile!.email}
+          username={profile!.name}
+          avatar={profile!.avatar}
+          initialItems={initialItems as TreeItem[]}
+        />
         <SidebarInset>
           <div className="flex min-h-screen w-full">
             <main className="w-full">

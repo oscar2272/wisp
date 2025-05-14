@@ -13,6 +13,7 @@ import {
   containsHangulJamo,
   containsProfanity,
 } from "~/features/profiles/utils/name-filter";
+import { toast } from "sonner";
 const formSchema = z.object({
   name: z
     .string()
@@ -52,6 +53,7 @@ export async function action({ request }: Route.ActionArgs) {
     } else if (id?.startsWith("note-")) {
       const rawId = id.replace("folder-", "").replace("note-", "");
       await deleteNote(Number(rawId), token);
+
       return new Response(JSON.stringify({ success: true, id }), {
         status: 200,
         headers: { "Content-Type": "application/json" },

@@ -10,11 +10,16 @@ import {
   SidebarFooter,
   SidebarRail,
 } from "~/common/components/ui/sidebar";
-import { Link, useFetcher, useNavigate, useParams } from "react-router";
-import { toast } from "sonner";
+import {
+  Link,
+  Navigate,
+  useFetcher,
+  useNavigate,
+  useParams,
+} from "react-router";
 import { Home, Trash2, Settings, Archive } from "lucide-react";
 import UserPopOverMenu from "./user-popover";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { TreeItem } from "../../type";
 import { SidebarTreeMenu } from "./sidebar-tree-menu";
 import { RenameDialog } from "./rename-dialog";
@@ -22,6 +27,7 @@ import { CreateDialog } from "./create-dialog";
 import { DeleteDialog } from "./delete-dialog";
 import { NotePopover } from "./note-popover";
 import { Skeleton } from "~/common/components/ui/skeleton";
+import { toast } from "sonner";
 export default function NoteSidebar({
   email,
   username,
@@ -33,34 +39,36 @@ export default function NoteSidebar({
   avatar: string;
   initialItems: TreeItem[];
 }) {
-  const fetcher = useFetcher();
-  const notes =
-    fetcher.state === "idle" && fetcher.data
-      ? fetcher.data.notes
-      : initialItems;
-  const navigate = useNavigate();
+  const notes = initialItems;
   const params = useParams();
+  const navigate = useNavigate();
   const currentNoteId = params.id;
+  const [items, setItems] = useState(notes);
 
-  const [items, setItems] = useState(initialItems);
-  const [renameDialogState, setRenameDialogState] = useState<TreeItem | null>(
-    null
-  );
   const [deleteDialogState, setDeleteDialogState] = useState<TreeItem | null>(
     null
   );
-  const [createDialogState, setCreateDialogState] = useState<{
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [createDialogMeta, setCreateDialogMeta] = useState<{
     type: "note" | "folder";
     parentId: string | null;
-    open: boolean;
   }>({
     type: "note",
     parentId: null,
-    open: false,
   });
+  const [renameDialogItem, setRenameDialogItem] = useState<TreeItem | null>(
+    null
+  );
+  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
 
   const openRenameDialog = (item: TreeItem) => {
-    setRenameDialogState(item);
+    setRenameDialogItem(item);
+    setRenameDialogOpen(true);
+  };
+
+  const closeRenameDialog = () => {
+    setRenameDialogOpen(false);
+    setRenameDialogItem(null);
   };
 
   const handleRenameSubmit = (item: TreeItem, newName: string) => {
@@ -74,53 +82,46 @@ export default function NoteSidebar({
   };
 
   const handleDeleteSubmit = (item: TreeItem) => {
-    const itemsToDelete = new Set([item.id]);
+    let isCurrentNoteDeleted = false;
+    setItems((prevItems) => {
+      const itemsToDelete = new Set([item.id]);
 
-    // 폴더인 경우 하위 항목도 모두 삭제
-    if (item.type === "folder") {
-      const findChildren = (parentId: string) => {
-        items.forEach((i) => {
-          if (i.parentId === parentId) {
-            itemsToDelete.add(i.id);
-            if (i.type === "folder") {
-              findChildren(i.id);
+      // 폴더인 경우 하위 항목도 모두 삭제
+      if (item.type === "folder") {
+        const findChildren = (parentId: string) => {
+          prevItems.forEach((i) => {
+            if (i.parentId === parentId) {
+              itemsToDelete.add(i.id);
+              if (i.type === "folder") {
+                findChildren(i.id);
+              }
             }
-          }
-        });
-      };
-      findChildren(item.id);
-    }
-
-    // 삭제하려는 노트가 현재 노트인 경우 먼저 체크
-    if (currentNoteId) {
-      const isCurrentNoteDeleted =
-        itemsToDelete.has(currentNoteId) ||
-        itemsToDelete.has(`note-${currentNoteId}`);
-
-      if (isCurrentNoteDeleted) {
-        toast.info("현재 보고 있는 노트가 삭제되어 목록 페이지로 이동합니다.");
-        navigate("/wisp/notes", { replace: true });
+          });
+        };
+        findChildren(item.id);
       }
-    }
+      if (currentNoteId) {
+        isCurrentNoteDeleted =
+          itemsToDelete.has(currentNoteId) ||
+          itemsToDelete.has(`note-${currentNoteId}`);
+      }
 
-    // 상태 업데이트는 마지막에 한 번만
-    setItems((prevItems) => prevItems.filter((i) => !itemsToDelete.has(i.id)));
+      return prevItems.filter((i) => !itemsToDelete.has(i.id));
+    });
+    if (isCurrentNoteDeleted) {
+      toast.info("현재 보고 있는 노트가 삭제되어 목록 페이지로 이동합니다.");
+      navigate("/wisp/notes", { replace: true });
+    }
   };
 
   const openCreateFileDialog = (parentId: string | null) => {
-    setCreateDialogState({
-      type: "note",
-      parentId,
-      open: true,
-    });
+    setCreateDialogMeta({ type: "note", parentId });
+    setCreateDialogOpen(true);
   };
 
   const openCreateFolderDialog = (parentId: string | null) => {
-    setCreateDialogState({
-      type: "folder",
-      parentId,
-      open: true,
-    });
+    setCreateDialogMeta({ type: "folder", parentId });
+    setCreateDialogOpen(true);
   };
   const handleCreate = (
     type: "note" | "folder",
@@ -136,6 +137,9 @@ export default function NoteSidebar({
     };
     setItems((prevItems) => [...prevItems, newItem]);
   };
+  useEffect(() => {
+    console.log("[Dialog open 상태]", createDialogOpen);
+  }, [createDialogOpen]);
   return (
     <div>
       <Sidebar collapsible="icon">
@@ -227,21 +231,22 @@ export default function NoteSidebar({
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>
-
       <RenameDialog
-        item={renameDialogState}
-        open={renameDialogState !== null}
-        onOpenChange={(open) => !open && setRenameDialogState(null)}
-        onRename={handleRenameSubmit}
+        item={renameDialogItem}
+        open={renameDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) closeRenameDialog();
+        }}
+        onRename={(item, newName) => {
+          handleRenameSubmit(item, newName);
+          closeRenameDialog();
+        }}
       />
-
       <CreateDialog
-        type={createDialogState.type}
-        parentId={createDialogState.parentId}
-        open={createDialogState.open}
-        onOpenChange={(open) =>
-          setCreateDialogState((prev) => ({ ...prev, open }))
-        }
+        type={createDialogMeta.type}
+        parentId={createDialogMeta.parentId}
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
         onCreate={handleCreate}
       />
 

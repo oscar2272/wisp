@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import { useToken } from "~/context/token-context";
 import { Alert } from "~/common/components/ui/alert";
-import { Loader2, LoaderIcon } from "lucide-react";
+import { LoaderIcon } from "lucide-react";
 import { cn } from "~/lib/utils";
 interface CreateDialogProps {
   type: "note" | "folder";
@@ -39,8 +39,11 @@ export function CreateDialog({
   const fetcher = useFetcher();
   const isSuccess =
     fetcher.state === "idle" && fetcher.data && fetcher.data.success === true;
-  const isLoading = fetcher.state !== "idle";
-
+  useEffect(() => {
+    if (!open) {
+      document.body.style.pointerEvents = "auto";
+    }
+  }, [open]);
   useEffect(() => {
     if (isSuccess) {
       const { id, name, type, parentId } = fetcher.data;
@@ -64,57 +67,53 @@ export function CreateDialog({
   };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>
-              {type === "folder" ? "새 폴더 만들기" : "새 문서 만들기"}
-            </DialogTitle>
-            <DialogDescription>
-              {type === "folder" ? "폴더" : "문서"}의 이름을 입력하세요.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <input type="hidden" name="type" value={type} />
-            <input type="hidden" name="parentId" value={parentId ?? ""} />
-            <Input
-              name="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={type === "folder" ? "폴더 이름" : "문서 이름"}
-              autoFocus
-            />
-          </div>
-          {fetcher.data?.fieldErrors?.name && (
-            <Alert variant="destructive" className="flex flex-row mb-2">
-              <div className="text-sm text-red-500">
-                {fetcher.data.fieldErrors.name.join(", ")}
-              </div>
-            </Alert>
-          )}
-          <DialogFooter>
-            <Button
-              variant="outline"
-              type="button"
-              onClick={() => {
-                onOpenChange(false);
-                setName("");
-              }}
-            >
-              취소
-            </Button>
-            <Button type="submit" disabled={isLoading || !name.trim()}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                </>
-              ) : (
-                "생성"
-              )}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
+      {open && (
+        <DialogContent>
+          <form onSubmit={handleSubmit}>
+            <DialogHeader>
+              <DialogTitle>
+                {type === "folder" ? "새 폴더 만들기" : "새 문서 만들기"}
+              </DialogTitle>
+              <DialogDescription>
+                {type === "folder" ? "폴더" : "문서"}의 이름을 입력하세요.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <input type="hidden" name="type" value={type} />
+              <input type="hidden" name="parentId" value={parentId ?? ""} />
+              <Input
+                name="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={type === "folder" ? "폴더 이름" : "문서 이름"}
+                autoFocus
+              />
+            </div>
+            {fetcher.data?.fieldErrors?.name && (
+              <Alert variant="destructive" className="flex flex-row mb-2">
+                <div className="text-sm text-red-500">
+                  {fetcher.data.fieldErrors.name.join(", ")}
+                </div>
+              </Alert>
+            )}
+            <DialogFooter>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => {
+                  setName("");
+                  onOpenChange(false);
+                }}
+              >
+                취소
+              </Button>
+              <Button type="submit" disabled={fetcher.state !== "idle"}>
+                만들기
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      )}
     </Dialog>
   );
 }

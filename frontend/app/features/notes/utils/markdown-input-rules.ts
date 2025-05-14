@@ -1,36 +1,6 @@
 // utils/markdown-input-rules.ts
 import { InputRule } from "prosemirror-inputrules";
 import { NodeType, MarkType } from "prosemirror-model";
-// export function orderedListInputRuleWithIndent(
-//   orderedListNode: NodeType,
-//   listItemNode: NodeType
-// ) {
-//   return new InputRule(/^(\s*)(\d+)\.\s$/, (state, match, start, end) => {
-//     const [_, spaces, orderStr] = match;
-//     const order = parseInt(orderStr, 10);
-//     if (isNaN(order)) return null;
-
-//     const level = Math.floor(spaces.length / 2); // 공백 2칸마다 한 단계
-
-//     const tr = state.tr.delete(start, end);
-
-//     // 가장 안쪽 listItem
-//     let nestedItem = listItemNode.create();
-
-//     // level만큼 감싸기: listItem > orderedList > listItem ...
-//     for (let i = 0; i < level; i++) {
-//       nestedItem = listItemNode.create(
-//         {},
-//         orderedListNode.create({}, [nestedItem])
-//       );
-//     }
-
-//     const topList = orderedListNode.create({ order }, [nestedItem]);
-
-//     tr.insert(start, topList);
-//     return tr;
-//   });
-// }
 
 export function headingInputRule(headingNode: NodeType) {
   return new InputRule(/^(#{1,6})\s$/, (state, match, start, end) => {
@@ -54,28 +24,26 @@ export function bulletListInputRule(
   });
 }
 
-export function orderedListInputRule(
-  orderedListNode: NodeType,
-  listItemNode: NodeType
-) {
-  return new InputRule(/^(\d+)\.\s$/, (state, match, start, end) => {
-    const [, orderStr] = match;
-    const order = parseInt(orderStr, 10);
+// export function orderedListInputRule(
+//   orderedListNode: NodeType,
+//   listItemNode: NodeType
+// ) {
+//   return new InputRule(/^(\d+)\.\s$/, (state, match, start, end) => {
+//     console.log("🔥 OrderedList input rule matched!", match); // ✅ 확인용 로그
+//     const [, orderStr] = match;
+//     const order = parseInt(orderStr, 10);
+//     if (isNaN(order)) return null;
 
-    if (isNaN(order)) return null;
+//     const { tr, schema } = state;
 
-    const tr = state.tr;
+//     // 새로운 리스트 생성
+//     const listItem = listItemNode.create();
+//     const orderedList = orderedListNode.create({ order }, [listItem]);
 
-    // 기존 텍스트 지우고 orderedList 생성
-    const list = orderedListNode.create(
-      { order }, // 중요: 시작 번호를 여기에 명시
-      [listItemNode.create()]
-    );
-
-    tr.replaceWith(start, end, list);
-    return tr;
-  });
-}
+//     tr.replaceWith(start, end, orderedList);
+//     return tr;
+//   });
+// }
 
 export function inlineMarkInputRule(mark: MarkType, pattern: RegExp) {
   return new InputRule(pattern, (state, match, start, end) => {
@@ -89,3 +57,44 @@ export function inlineMarkInputRule(mark: MarkType, pattern: RegExp) {
     return tr;
   });
 }
+// export function taskListInputRule(
+//   taskListNode: NodeType,
+//   taskItemNode: NodeType
+// ) {
+//   return new InputRule(/^-\s\[( |x|X)\]\s$/, (state, match, start, end) => {
+//     console.log("🔥 Rule matched:", match);
+//     const checked = match[1].toLowerCase() === "x";
+
+//     const { tr, schema } = state;
+//     const paragraph = schema.nodes.paragraph.create();
+//     const taskItem = taskItemNode.create({ checked }, paragraph);
+//     const taskList = taskListNode.create({}, [taskItem]);
+
+//     return tr.replaceWith(start, end, taskList);
+//   });
+// }
+
+// export function orderedListInputRuleWithIndent(
+//   orderedListNode: NodeType,
+//   listItemNode: NodeType
+// ) {
+//   return new InputRule(/^(\s*)(\d+)\.\s$/, (state, match, start, end) => {
+//     const [_, spaces, orderStr] = match;
+//     const order = parseInt(orderStr, 10);
+//     if (isNaN(order)) return null;
+
+//     const level = Math.floor(spaces.length / 2); // 2칸마다 한 단계 들여쓰기
+//     const tr = state.tr.delete(start, end);
+
+//     let nested = listItemNode.create(); // 가장 안쪽 listItem
+
+//     // 중첩 구조 생성: listItem > orderedList > listItem ...
+//     for (let i = 0; i < level; i++) {
+//       nested = listItemNode.create({}, orderedListNode.create({}, [nested]));
+//     }
+
+//     const topList = orderedListNode.create({ order }, [nested]);
+//     tr.insert(start, topList);
+//     return tr;
+//   });
+// }

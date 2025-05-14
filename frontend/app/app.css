@@ -199,8 +199,7 @@ body {
   .ProseMirror ol li::before {
     content: counter(custom-counter);
     @apply absolute -left-8 w-6 h-6 flex items-center justify-center
-           text-sm font-medium text-gray-600 bg-gray-100
-           rounded-full transition-colors;
+      text-sm font-medium text-gray-600 bg-gray-100 rounded-full transition-colors;
   }
 
   .ProseMirror ol li:hover::before {
@@ -208,7 +207,7 @@ body {
   }
 
   .ProseMirror ul {
-    @apply pl-8 my-4 list-none;
+    @apply pl-8 my-4;
   }
 
   .ProseMirror ul li {
