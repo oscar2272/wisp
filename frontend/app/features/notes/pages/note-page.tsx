@@ -5,7 +5,6 @@ import {
   ShareIcon,
   TrashIcon,
   ClockIcon,
-  LockIcon,
   ThumbsUpIcon,
   MessageCircleIcon,
 } from "lucide-react";
@@ -13,13 +12,10 @@ import { Badge } from "~/common/components/ui/badge";
 import { ShareDialog } from "../components/share-dialog";
 import type { Route } from "./+types/note-page";
 import { DateTime } from "luxon";
-import { Link, useLoaderData, useNavigate, useParams } from "react-router";
-import TiptapReadOnlyViewer from "../components/tiptap-viewer";
+import { Link, useParams } from "react-router";
 import { getToken } from "~/features/profiles/api";
 import { getNote } from "../api";
-import type { Note } from "../type";
-import { ClientOnly } from "remix-utils/client-only";
-import { Separator } from "~/common/components/ui/separator";
+import { TiptapReadOnlyViewer } from "../components/markdown/tiptap-viewer";
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
@@ -68,8 +64,19 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       ? { label: "만료됨", variant: "destructive" }
       : { label: `${remainingDays}일 남음`, variant: "secondary" };
   }
-
-  return { note, statusBadge, expiryBadge, isExpired };
+  function extractTypes(node: any, types = new Set()) {
+    if (typeof node !== "object" || node === null) return types;
+    if (node.type) types.add(node.type);
+    if (node.content)
+      node.content.forEach((child: any) => extractTypes(child, types));
+    return types;
+  }
+  return {
+    note,
+    statusBadge,
+    expiryBadge,
+    isExpired,
+  };
 }
 
 export default function NotePage({ loaderData }: Route.ComponentProps) {
@@ -80,7 +87,7 @@ export default function NotePage({ loaderData }: Route.ComponentProps) {
   const expiryBadge = loaderData!.expiryBadge;
   return (
     <div className="flex flex-col w-full items-center max-w-7xl py-8 space-y-8">
-      <div className="flex flex-col items-start w-full  space-y-10 py-1 px-4">
+      <div className="flex flex-col items-start w-full  space-y-10 py-1 px-2">
         <h1 className="text-3xl font-bold">{note!.title || "제목 없음"}</h1>
         <div className="flex flex-row justify-between items-center gap-4 w-full">
           <div className="flex gap-2 items-center">
@@ -118,11 +125,21 @@ export default function NotePage({ loaderData }: Route.ComponentProps) {
       </div>
 
       <div className="min-h-[200px] w-full rounded-lg">
-        <ClientOnly fallback={<p>로딩 중...</p>}>
+        {/* <ClientOnly
+          fallback={
+            <div className="w-full min-h-[200px] rounded-lg border p-4">
+              <Skeleton className="h-8 w-3/4 mb-4" />
+              <Skeleton className="h-6 w-full mb-3" />
+              <Skeleton className="h-6 w-11/12 mb-3" />
+              <Skeleton className="h-6 w-5/6 mb-3" />
+            </div>
+          }
+        >
           {() => (
             <TiptapReadOnlyViewer key={note!.id} content={note!.content} />
           )}
-        </ClientOnly>
+        </ClientOnly> */}
+        <TiptapReadOnlyViewer key={note!.id} content={note!.content} />
       </div>
       <div className="flex justify-between  pt-6 w-full">
         <div className="flex gap-2">

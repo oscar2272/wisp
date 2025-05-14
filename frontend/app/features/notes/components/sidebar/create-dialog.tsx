@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import { useToken } from "~/context/token-context";
 import { Alert } from "~/common/components/ui/alert";
-import { LoaderIcon } from "lucide-react";
+import { Loader2, LoaderIcon } from "lucide-react";
 import { cn } from "~/lib/utils";
 interface CreateDialogProps {
   type: "note" | "folder";
@@ -39,6 +39,8 @@ export function CreateDialog({
   const fetcher = useFetcher();
   const isSuccess =
     fetcher.state === "idle" && fetcher.data && fetcher.data.success === true;
+  const isLoading = fetcher.state !== "idle";
+
   useEffect(() => {
     if (isSuccess) {
       const { id, name, type, parentId } = fetcher.data;
@@ -101,8 +103,14 @@ export function CreateDialog({
             >
               취소
             </Button>
-            <Button type="submit" disabled={fetcher.state !== "idle"}>
-              만들기
+            <Button type="submit" disabled={isLoading || !name.trim()}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                </>
+              ) : (
+                "생성"
+              )}
             </Button>
           </DialogFooter>
         </form>

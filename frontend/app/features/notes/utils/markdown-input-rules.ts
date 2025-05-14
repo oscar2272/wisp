@@ -1,6 +1,36 @@
 // utils/markdown-input-rules.ts
 import { InputRule } from "prosemirror-inputrules";
 import { NodeType, MarkType } from "prosemirror-model";
+// export function orderedListInputRuleWithIndent(
+//   orderedListNode: NodeType,
+//   listItemNode: NodeType
+// ) {
+//   return new InputRule(/^(\s*)(\d+)\.\s$/, (state, match, start, end) => {
+//     const [_, spaces, orderStr] = match;
+//     const order = parseInt(orderStr, 10);
+//     if (isNaN(order)) return null;
+
+//     const level = Math.floor(spaces.length / 2); // 공백 2칸마다 한 단계
+
+//     const tr = state.tr.delete(start, end);
+
+//     // 가장 안쪽 listItem
+//     let nestedItem = listItemNode.create();
+
+//     // level만큼 감싸기: listItem > orderedList > listItem ...
+//     for (let i = 0; i < level; i++) {
+//       nestedItem = listItemNode.create(
+//         {},
+//         orderedListNode.create({}, [nestedItem])
+//       );
+//     }
+
+//     const topList = orderedListNode.create({ order }, [nestedItem]);
+
+//     tr.insert(start, topList);
+//     return tr;
+//   });
+// }
 
 export function headingInputRule(headingNode: NodeType) {
   return new InputRule(/^(#{1,6})\s$/, (state, match, start, end) => {

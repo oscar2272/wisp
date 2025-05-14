@@ -1,3 +1,5 @@
+import type { JSONContent } from "@tiptap/core";
+
 export type TreeItem = {
   id: string;
   parentId: string | null;
@@ -10,7 +12,7 @@ export type Note = {
   author: string;
   file_name: string;
   title: string;
-  content: string;
+  content: JSONContent;
   likes_count: number;
   slug?: string;
   is_shared: boolean;
@@ -24,5 +26,5 @@ export type Note = {
 
 export type EditNote = {
   title: string;
-  content: string;
+  content: JSONContent;
 };

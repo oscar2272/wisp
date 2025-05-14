@@ -160,27 +160,6 @@ body {
     @apply whitespace-pre-wrap break-words text-base leading-relaxed text-zinc-800 dark:text-zinc-100;
   }
 
-  /* Editor Scrollbar */
-  .ProseMirror-parent {
-    @apply overflow-y-auto;
-  }
-
-  .ProseMirror-parent::-webkit-scrollbar {
-    @apply w-2;
-  }
-
-  .ProseMirror-parent::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
-
-  .ProseMirror-parent::-webkit-scrollbar-thumb {
-    @apply bg-slate-200 dark:bg-slate-700 rounded-full;
-  }
-
-  .ProseMirror-parent::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-300 dark:bg-slate-600;
-  }
-
   /* Headings */
   .ProseMirror h1 {
     @apply text-4xl font-extrabold mt-8 mb-4 pb-2;

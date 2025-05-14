@@ -6,6 +6,7 @@ import {
   bulletListInputRule,
   orderedListInputRule,
   inlineMarkInputRule,
+  //orderedListInputRuleWithIndent,
 } from "../utils/markdown-input-rules";
 
 export const CustomMarkdownInputRules = Extension.create({
@@ -27,6 +28,10 @@ export const CustomMarkdownInputRules = Extension.create({
             this.editor.schema.marks.highlight,
             /==([^=]+)==$/
           ),
+          // orderedListInputRuleWithIndent(
+          //   this.editor.schema.nodes.orderedList,
+          //   this.editor.schema.nodes.listItem
+          // ),
 
           inlineMarkInputRule(this.editor.schema.marks.strike, /~~([^~]+)~~$/),
           new InputRule(

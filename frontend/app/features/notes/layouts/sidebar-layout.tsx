@@ -14,8 +14,14 @@ import type { TreeItem } from "../type";
 import { getNotesSidebar, getTrash } from "../api";
 import { TokenContext } from "~/context/token-context";
 import { Toaster } from "sonner";
+import { useFetcher } from "react-router";
+import { Skeleton } from "~/common/components/ui/skeleton";
+import SidebarSkeletonUI from "../components/sidebar-skeleton-ui";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
+  // 테스트를 위한 3초 지연
+  //await new Promise((resolve) => setTimeout(resolve, 3000));
+
   const url = new URL(request.url);
   const pathname = url.pathname;
   const { client } = makeSSRClient(request);
@@ -46,16 +52,23 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
   const initialItems = loaderData?.initialItems;
   const token = loaderData?.token;
   const trash = loaderData?.trash;
+  const fetcher = useFetcher();
+  const isLoading = fetcher.state === "loading";
+
   return (
     <TokenContext.Provider value={token!}>
       <Toaster richColors position="top-center" />
       <SidebarProvider>
-        <NoteSidebar
-          email={profile!.email}
-          username={profile!.name}
-          avatar={profile!.avatar}
-          initialItems={initialItems as TreeItem[]}
-        />
+        {isLoading ? (
+          <SidebarSkeletonUI />
+        ) : (
+          <NoteSidebar
+            email={profile!.email}
+            username={profile!.name}
+            avatar={profile!.avatar}
+            initialItems={initialItems as TreeItem[]}
+          />
+        )}
         <SidebarInset>
           <div className="flex min-h-screen w-full">
             <main className="w-full">

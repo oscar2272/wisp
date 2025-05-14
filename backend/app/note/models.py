@@ -3,7 +3,13 @@ from django.conf import settings
 from django.utils import timezone
 from user.models import User
 
-
+DEFAULT_TIPTAP_DOC = {
+    "type": "doc",
+    "content": [
+        {"type": "paragraph", "content": [{"type": "text", "text": "내용을 입력하세요."}]},
+        {"type": "paragraph"}
+    ]
+}
 class Folder(models.Model):
     owner = models.ForeignKey(
         User,
@@ -39,7 +45,7 @@ class Note(models.Model):
     # 메모 본문
     file_name = models.CharField(max_length=255)
     title = models.CharField(max_length=255, default="무제")
-    content = models.TextField(default="메모를 작성해주세요.(마크다운 지원)")
+    content = models.JSONField(default=DEFAULT_TIPTAP_DOC)
     likes_count = models.PositiveIntegerField(default=0)
     # 공유 관련 필드
     slug = models.SlugField(unique=True, max_length=12, null=True, blank=True)  # slug는 공유할 때 생성

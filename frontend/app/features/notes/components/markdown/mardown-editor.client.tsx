@@ -1,5 +1,6 @@
+// app/components/markdown/mardown-editor.client.tsx
 "use client";
-// app/components/tiptap-editor.tsx
+
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Heading from "@tiptap/extension-heading";
@@ -13,18 +14,25 @@ import Underline from "@tiptap/extension-underline";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { common, createLowlight } from "lowlight";
 import { Markdown } from "tiptap-markdown";
-import { createMarkdownPastePlugin } from "../utils/markdown-paste-plugin";
-import { CustomMarkdownInputRules } from "../utils/custom-markdown-input-rules";
+import { createMarkdownPastePlugin } from "../../utils/markdown-paste-plugin";
+import { CustomMarkdownInputRules } from "../../utils/custom-markdown-input-rules";
 import Link from "@tiptap/extension-link";
 import TiptapMenuBar from "./mardown-toolbar";
+
+import type { JSONContent } from "@tiptap/core";
+
 const lowlight = createLowlight(common);
 
 export default function TiptapMarkdownEditor({
   onChange,
   initialContent,
 }: {
-  onChange?: (data: { html: string; markdown: string }) => void;
-  initialContent?: string;
+  onChange?: (data: {
+    html: string;
+    markdown: string;
+    json: JSONContent;
+  }) => void;
+  initialContent?: JSONContent | string;
 }) {
   const editor = useEditor({
     extensions: [
@@ -33,15 +41,11 @@ export default function TiptapMarkdownEditor({
         heading: false,
         code: false,
       }),
-      Link.configure({
-        openOnClick: true,
-        autolink: false,
-      }),
       Heading.configure({ levels: [1, 2, 3, 4, 5, 6] }),
       BulletList,
-      ListItem,
-      OrderedList,
-      CodeBlockLowlight.configure({ lowlight, defaultLanguage: null }),
+      // ListItem,
+      // OrderedList,
+      CodeBlockLowlight.configure({ lowlight }),
       TaskList,
       TaskItem,
       Underline,
@@ -49,35 +53,31 @@ export default function TiptapMarkdownEditor({
       Markdown,
       CustomMarkdownInputRules,
     ],
+    content: initialContent,
     editorProps: {
       attributes: {
-        class: "prose prose-slate dark:prose-invert py-4 focus:outline-none",
+        class:
+          "ProseMirror dark:prose-invert max-w-none py-4 focus:outline-none",
       },
       handleKeyDown(view, event) {
         if (event.key === "Tab") {
-          event.preventDefault(); // 기본 포커스 이동 막기
-
+          event.preventDefault();
           const { state, dispatch } = view;
           const { from, to } = state.selection;
-
-          // ✅ '\t' 삽입 (혹은 '    ' 4칸 공백으로 대체 가능)
-          dispatch(state.tr.insertText("    ", from, to)); // 4칸 공백
+          dispatch(state.tr.insertText("    ", from, to));
           return true;
         }
-
         return false;
       },
     },
     onCreate({ editor }) {
-      editor.registerPlugin(
-        createMarkdownPastePlugin() // 🔥 새로 만든 붙여넣기 전용 plugin
-      );
+      editor.registerPlugin(createMarkdownPastePlugin());
     },
-    content: initialContent,
     onUpdate({ editor }) {
       const html = editor.getHTML();
-      const markdown = editor.storage.markdown?.getMarkdown?.() || "";
-      onChange?.({ html, markdown });
+      const markdown = (editor.storage as any).markdown?.getMarkdown?.() || "";
+      const json = editor.getJSON();
+      onChange?.({ html, markdown, json });
     },
   });
 

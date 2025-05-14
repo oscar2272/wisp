@@ -173,10 +173,11 @@ export async function getEditNote(
   return { note: data };
 }
 
+import type { JSONContent } from "@tiptap/core";
+
 export async function updateNote(
   id: string,
-  title: string,
-  content: string,
+  data: { title: string; content: JSONContent }, // ✅ JSONContent로 수정
   token: string
 ) {
   const res = await fetch(`${USER_API_URL}/${id}/edit/`, {
@@ -185,10 +186,13 @@ export async function updateNote(
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ title, content }),
+    body: JSON.stringify(data),
   });
+
   if (!res.ok) {
+    const error = await res.text();
     throw new Error("Failed to update note");
   }
+
   return res.json();
 }
