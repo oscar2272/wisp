@@ -12,6 +12,8 @@ from .views import (
     NoteDetailEditView,
     NoteDetailShareView,
     SlugRetrieveCreateView,
+    NoteListView,
+    NoteShareRetrieveView,
 )
 
 
@@ -22,6 +24,9 @@ urlpatterns = [
     path('<int:pk>/edit/', NoteDetailEditView.as_view(), name='note-edit'),
     path('<int:pk>/share/', NoteDetailShareView.as_view(), name='note-share'),
     path('<int:pk>/slug/', SlugRetrieveCreateView.as_view(), name='slug'),
+
+    path('explore/', NoteListView.as_view(), name='note-list'),
+    path('explore/<int:pk>/', NoteShareRetrieveView.as_view(), name='note-share-retrieve'),
 
     path('sidebar/', TreeItemListRetrieveView.as_view(), name='sidebar'),
     path('folder/', FolderCreateView.as_view(), name='folder'),

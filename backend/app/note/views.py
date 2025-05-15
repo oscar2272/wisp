@@ -20,13 +20,16 @@ from .serializers import (
     TreeItemNoteSerializer,
     NoteDetailSerializer,
     NoteDetailEditSerializer,
-    NoteDetailShareSerializer
+    NoteDetailShareSerializer,
+    NoteListSerializer,
+    NoteShareSerializer,
 )
 from core.views import SupabaseJWTAuthentication
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import NoteComment
 from .utils.random_slug import generate_unique_slug
+from django.db.models import Count
 # 사이드바 전용 뷰
 class TreeItemListRetrieveView(APIView):
     authentication_classes = [SupabaseJWTAuthentication]
@@ -202,3 +205,29 @@ class NoteDetailShareView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+
+
+# explore 페이지 note list view
+class NoteListView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        notes = Note.objects.filter(is_deleted=False, is_public=True) \
+            .annotate(
+            seen_count=Count("views", distinct=True),
+            comments_count=Count("comments", distinct=True),
+            likes_count=Count("likes", distinct=True),
+        )
+        serializer = NoteListSerializer(notes, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class NoteShareRetrieveView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, pk):
+        note = get_object_or_404(Note, id=pk)
+        serializer = NoteShareSerializer(note)
+        print(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)

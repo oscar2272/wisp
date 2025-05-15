@@ -17,7 +17,7 @@ import type { Route } from "./+types/note-page";
 import { DateTime } from "luxon";
 import { Link, redirect, useFetcher, useParams } from "react-router";
 import { getToken } from "~/features/profiles/api";
-import { createUrl, deleteNote, getNote, patchShare } from "../api";
+import { createUrl, deleteNote, getNote, getUrl, patchShare } from "../api";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,7 +38,9 @@ export async function action({ request, params }: Route.ActionArgs) {
   if (!token) {
     return { error: "Unauthorized" };
   }
+
   if (request.method === "DELETE") {
+    console.log("삭제 실행");
     try {
       const id = params.id;
       const rawId = id!.toString().replace("note-", "");
@@ -132,6 +134,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       ? { label: "만료됨", variant: "destructive" }
       : { label: `${remainingDays}일 남음`, variant: "secondary" };
   }
+  let url = null;
+  if (note.slug !== null) {
+    const res = await getUrl(rawId, token);
+    url = res.url;
+  }
   // function extractTypes(node: any, types = new Set()) {
   //   if (typeof node !== "object" || node === null) return types;
   //   if (node.type) types.add(node.type);
@@ -144,12 +151,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     statusBadge,
     expiryBadge,
     isExpired,
+    url,
   };
 }
 
 export default function NotePage({ loaderData }: Route.ComponentProps) {
   const params = useParams();
   const fetcher = useFetcher();
+  const url = loaderData!.url;
   const note = loaderData!.note;
   const isExpired = loaderData!.isExpired;
   const statusBadge = loaderData!.statusBadge;
@@ -194,37 +203,18 @@ export default function NotePage({ loaderData }: Route.ComponentProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem asChild>
-                    <Button
-                      variant="ghost"
-                      className="flex flex-row justify-start w-full items-center gap-2"
-                      onClick={() => {
-                        navigator.clipboard.writeText(
-                          `${window.location.origin}/wisp/notes/${params.id}`
-                        );
-                        toast.success("페이지 링크가 복사되었습니다.");
-                      }}
-                    >
-                      <Link2 className="mr-2 h-4 w-4" />
-                      페이지 링크 복사
-                    </Button>
-                  </DropdownMenuItem>
                   {note!.slug && (
                     <DropdownMenuItem asChild>
                       <Button
                         variant="ghost"
                         className="flex flex-row justify-start w-full items-center gap-2"
                         onClick={() => {
-                          navigator.clipboard.writeText(
-                            `${window.location.origin}/wisp/notes/s/${
-                              note!.slug
-                            }`
-                          );
+                          navigator.clipboard.writeText(`${url}`);
                           toast.success("개인 링크가 복사되었습니다.");
                         }}
                       >
                         <LinkIcon className="mr-2 h-4 w-4" />
-                        개인 링크 복사
+                        링크 복사
                       </Button>
                     </DropdownMenuItem>
                   )}
@@ -239,7 +229,7 @@ export default function NotePage({ loaderData }: Route.ComponentProps) {
                       }}
                     >
                       <LinkIcon className="mr-2 h-4 w-4" />
-                      개인 링크 생성
+                      링크 생성
                     </Button>
                   </DropdownMenuItem>
 

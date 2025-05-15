@@ -10,78 +10,22 @@ import { Button } from "~/common/components/ui/button";
 import { Form } from "react-router";
 import type { Route } from "./+types/explore-page";
 import { NoteCard } from "~/common/components/note-card";
-
+import { getNoteList } from "../api";
+import type { NoteList } from "~/features/notes/type";
+import type { JSONContent } from "@tiptap/react";
 // mock loader
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const notes = [
-    {
-      id: "n1",
-      title: "공유된 메모 예시",
-      content: "이건 다른 사용자가 공유한 메모입니다.",
-      createdAt: "2025-05-01",
-      author: {
-        name: "hyeongyu",
-        avatarUrl: "https://i.pravatar.cc/150?u=user1",
-      },
-      stats: {
-        views: 128,
-        comments: 3,
-        likes: 10,
-      },
-    },
-    {
-      id: "n2",
-      title: "비밀번호 전달 링크",
-      content: "이 메모는 보안이 중요한 내용을 담고 있습니다.",
-      createdAt: "2025-04-25",
-      author: {
-        name: "alice",
-        avatarUrl: "https://i.pravatar.cc/150?u=user2",
-      },
-      stats: {
-        views: 300,
-        comments: 5,
-        likes: 11,
-      },
-    },
-    {
-      id: "n3",
-      title: "공유된 메모 예시",
-      content: "이건 다른 사용자가 공유한 메모입니다.",
-      createdAt: "2025-05-01",
-      author: {
-        name: "hyeongyu",
-        avatarUrl: "https://i.pravatar.cc/150?u=user1",
-      },
-      stats: {
-        views: 128,
-        comments: 3,
-        likes: 8,
-      },
-    },
-    {
-      id: "n4",
-      title: "공유된 메모 예시",
-      content: "이건 다른 사용자가 공유한 메모입니다.",
-      createdAt: "2025-05-01",
-      author: {
-        name: "hyeongyu",
-        avatarUrl: "https://i.pravatar.cc/150?u=user1",
-      },
-      stats: {
-        views: 128,
-        comments: 3,
-        likes: 13,
-      },
-    },
-  ];
+  const notes = (await getNoteList()) as NoteList[];
+  const parsed: JSONContent =
+    typeof notes[0].content === "string"
+      ? JSON.parse(notes[0].content)
+      : notes[0].content;
 
   return { notes };
 };
 
 export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
   const { notes } = loaderData;
-
   return (
     <div className="flex flex-col w-full py-4">
       <Tabs defaultValue="popular" className="w-full">
@@ -107,11 +51,13 @@ export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
                 key={note.id}
                 postId={note.id}
                 title={note.title}
-                date={note.createdAt}
-                imageUrl="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4"
-                description={note.content}
+                date={note.updated_at}
+                expires_at={note.expires_at}
+                description={note.content.content!}
                 author={note.author}
-                stats={note.stats}
+                views={note.seen_count}
+                comments={note.comments_count}
+                likes={note.likes_count}
               />
             ))}
           </div>
@@ -124,11 +70,13 @@ export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
                 key={note.id}
                 postId={note.id}
                 title={note.title}
-                date={note.createdAt}
-                imageUrl="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4"
-                description={note.content}
+                date={note.updated_at}
+                expires_at={note.expires_at}
+                description={note.content.content!}
                 author={note.author}
-                stats={note.stats}
+                views={note.seen_count}
+                comments={note.comments_count}
+                likes={note.likes_count}
               />
             ))}
           </div>

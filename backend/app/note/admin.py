@@ -10,7 +10,6 @@ class NoteAdmin(admin.ModelAdmin):
         "title",
         "author",
         "folder",
-        "likes_count",
         "seen_count",
         "comment_count",
         "is_shared",
@@ -21,7 +20,7 @@ class NoteAdmin(admin.ModelAdmin):
     )
     list_filter = ("is_shared", "is_public", "author")
     search_fields = ("file_name", "content")
-    readonly_fields = ("likes_count", "created_at", "updated_at")
+    readonly_fields = ("created_at", "updated_at")  # likes_count 제거
     ordering = ("-created_at",)
 
     def seen_count(self, obj):
