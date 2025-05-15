@@ -196,3 +196,45 @@ export async function updateNote(
 
   return res.json();
 }
+
+export async function getUrl(id: string, token: string) {
+  const res = await fetch(`${USER_API_URL}/${id}/slug/`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to get url");
+  }
+  return res.json();
+}
+
+export async function createUrl(id: string, token: string) {
+  const res = await fetch(`${USER_API_URL}/${id}/slug/`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to create url");
+  }
+  return res.json();
+}
+
+export async function patchShare(
+  id: string,
+  token: string,
+  shareType: string,
+  expiryDate?: string | null
+) {
+  const res = await fetch(`${USER_API_URL}/${id}/share/`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ shareType, expiryDate }),
+  });
+  if (!res.ok) {
+    throw new Error("Failed to patch share");
+  }
+  return res.json();
+}

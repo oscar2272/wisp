@@ -10,6 +10,8 @@ from .views import (
     TrashListView,
     NoteDetailView,
     NoteDetailEditView,
+    NoteDetailShareView,
+    SlugRetrieveCreateView,
 )
 
 
@@ -18,6 +20,8 @@ app_name = 'note'
 urlpatterns = [
     path('<int:pk>/', NoteDetailView.as_view(), name='note-detail'),
     path('<int:pk>/edit/', NoteDetailEditView.as_view(), name='note-edit'),
+    path('<int:pk>/share/', NoteDetailShareView.as_view(), name='note-share'),
+    path('<int:pk>/slug/', SlugRetrieveCreateView.as_view(), name='slug'),
 
     path('sidebar/', TreeItemListRetrieveView.as_view(), name='sidebar'),
     path('folder/', FolderCreateView.as_view(), name='folder'),

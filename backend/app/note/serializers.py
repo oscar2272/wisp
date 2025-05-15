@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from .models import Folder, Note
+from django.utils import timezone
 
-
+# 폴더 생성 serializer
 class TreeItemFolderSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
     parentId = serializers.SerializerMethodField()
@@ -22,6 +23,7 @@ class TreeItemFolderSerializer(serializers.ModelSerializer):
         return "folder"
 
 
+# 노트 생성 serializer
 class TreeItemNoteSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
     parentId = serializers.SerializerMethodField()
@@ -42,6 +44,7 @@ class TreeItemNoteSerializer(serializers.ModelSerializer):
         return "note"
 
 
+# 노트 상세 조회 serializer
 class NoteDetailSerializer(serializers.ModelSerializer):
     comments_count = serializers.SerializerMethodField()
     class Meta:
@@ -55,7 +58,56 @@ class NoteDetailSerializer(serializers.ModelSerializer):
     def get_comments_count(self, obj):
         return self.context.get('comments_count', 0)
 
+
+# 노트 수정 serializer
 class NoteDetailEditSerializer(serializers.ModelSerializer):
     class Meta:
         model = Note
         fields = ("id", "title", "content")
+
+
+# 공유/공개/날짜 설정 serializer
+class NoteDetailShareSerializer(serializers.ModelSerializer):
+
+    shareType = serializers.CharField(write_only=True, required=False)
+    expiryDate = serializers.DateTimeField(write_only=True, required=False, allow_null=True)
+
+    class Meta:
+        model = Note
+        fields = [
+            "shareType", "expiryDate",  # write-only
+            "is_shared", "is_public", "expires_at",
+
+        ]
+
+    def update(self, instance, validated_data):
+        share_type = validated_data.pop("shareType")
+        expiry_date = validated_data.pop("expiryDate", None)
+
+        # 🧠 shareType 처리
+        if share_type:
+            if share_type == "private":
+                instance.is_shared = False
+                instance.is_public = False
+                instance.expires_at = None
+            elif share_type == "public":
+                instance.is_shared = True
+                instance.is_public = True
+                instance.expires_at = expiry_date
+                instance.shared_at = timezone.now()
+            elif share_type == "shared":
+                instance.is_shared = True
+                instance.is_public = False
+                instance.expires_at = expiry_date
+                instance.shared_at = timezone.now()
+
+        # 🧠 나머지 기본 업데이트
+        return super().update(instance, validated_data)
+
+
+# explore 페이지 note list serializer
+class NoteListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Note
+        fields = ("id", "title", "content", "likes_count", "comments_count", "seen_count", "updated_at")
+

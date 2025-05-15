@@ -19,13 +19,15 @@ from .serializers import (
     TreeItemFolderSerializer,
     TreeItemNoteSerializer,
     NoteDetailSerializer,
-    NoteDetailEditSerializer
+    NoteDetailEditSerializer,
+    NoteDetailShareSerializer
 )
 from core.views import SupabaseJWTAuthentication
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import NoteComment
-
+from .utils.random_slug import generate_unique_slug
+# 사이드바 전용 뷰
 class TreeItemListRetrieveView(APIView):
     authentication_classes = [SupabaseJWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -135,6 +137,8 @@ class NoteDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+
+
 # edit페이지에서 데이터 조회/수정
 class NoteDetailEditView(APIView):
     authentication_classes = [SupabaseJWTAuthentication]
@@ -167,3 +171,34 @@ class TrashListView(APIView):
         note_data = TreeItemNoteSerializer(notes, many=True).data
 
         return Response(folder_data + note_data)
+
+
+# slug 생성/url 조회 view
+class SlugRetrieveCreateView(APIView):
+    authentication_classes = [SupabaseJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request,pk):
+        note = get_object_or_404(Note, id=pk, author=request.user)
+        return Response({"url": f"https://wisp.app/share/note/{note.slug}"}, status=status.HTTP_200_OK)
+
+    def post(self, request,pk):
+        note = get_object_or_404(Note, id=pk, author=request.user)
+        slug = generate_unique_slug()
+        print(slug)
+        note.slug = slug
+        note.save()
+        return Response({"url": f"https://wisp.app/share/note/{note.slug}"}, status=status.HTTP_200_OK)
+
+
+# 공유/공개/날짜 설정 view
+class NoteDetailShareView(APIView):
+    authentication_classes = [SupabaseJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        note = get_object_or_404(Note, id=pk, author=request.user)
+        serializer = NoteDetailShareSerializer(note, data=request.data, partial=True) #update 오버라이딩
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)

@@ -23,8 +23,8 @@ export async function getUserProfile(token: string) {
       Authorization: `Bearer ${token}`,
     },
   });
-
   if (!res.ok) {
+    console.log(await res.text());
     throw new Error("Failed to fetch profile");
   }
   return res.json();

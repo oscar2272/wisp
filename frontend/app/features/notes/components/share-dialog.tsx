@@ -66,6 +66,7 @@ export function ShareDialog({ onSave }: ShareDialogProps) {
   const handleSave = () => {
     const formData = new FormData();
     formData.append("shareType", shareType);
+    formData.append("id", params.id!);
     let expiryDateToSend: string | null = null;
 
     if (expiryTabValue === "calendar" && expiryDate) {
@@ -90,7 +91,7 @@ export function ShareDialog({ onSave }: ShareDialogProps) {
     }
     fetcher.submit(formData, {
       action: `/wisp/notes/${params.id}`,
-      method: "POST",
+      method: "PATCH",
     });
 
     setOpen(false);

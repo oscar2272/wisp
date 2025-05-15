@@ -7,10 +7,9 @@ import {
   ClockIcon,
   ThumbsUpIcon,
   MessageCircleIcon,
-  ChevronDownIcon,
-  LinkIcon,
   MoreVerticalIcon,
   Link2,
+  LinkIcon,
 } from "lucide-react";
 import { Badge } from "~/common/components/ui/badge";
 import { ShareDialog } from "../components/share-dialog";
@@ -18,8 +17,7 @@ import type { Route } from "./+types/note-page";
 import { DateTime } from "luxon";
 import { Link, redirect, useFetcher, useParams } from "react-router";
 import { getToken } from "~/features/profiles/api";
-import { deleteNote, getNote } from "../api";
-import { TiptapReadOnlyViewer } from "../components/markdown/tiptap-viewer";
+import { createUrl, deleteNote, getNote, patchShare } from "../api";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,16 +25,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/common/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/common/components/ui/tooltip";
-import { toast } from "sonner";
 
-export async function action({ request }: Route.ActionArgs) {
+import { toast } from "sonner";
+import { TiptapReadOnlyViewer } from "../components/markdown/tiptap-viewer";
+
+export async function action({ request, params }: Route.ActionArgs) {
   const formData = await request.formData();
+
   const shareType = formData.get("shareType");
   const expiryDate = formData.get("expiryDate");
   const token = await getToken(request);
@@ -45,11 +40,11 @@ export async function action({ request }: Route.ActionArgs) {
   }
   if (request.method === "DELETE") {
     try {
-      const id = formData.get("id");
+      const id = params.id;
       const rawId = id!.toString().replace("note-", "");
       await deleteNote(Number(rawId), token);
 
-      return redirect("/wisp/notes");
+      return redirect("/wisp/profile");
     } catch (err) {
       console.error("삭제 실패", err);
       return new Response(
@@ -61,8 +56,40 @@ export async function action({ request }: Route.ActionArgs) {
       );
     }
   }
-
-  // API 호출 또는 상태 업데이트 등 필요한 작업 수행
+  if (request.method === "PATCH") {
+    try {
+      const id = params.id;
+      const rawId = id!.toString().replace("note-", "");
+      await patchShare(
+        rawId,
+        token,
+        shareType!.toString(),
+        expiryDate?.toString()
+      );
+    } catch (err) {
+      console.error("공유 설정 실패", err);
+      return new Response(
+        JSON.stringify({ success: false, message: "공유 설정 실패" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+  }
+  if (request.method === "POST") {
+    console.log("개인 링크 생성 실행");
+    try {
+      const id = params.id;
+      const rawId = id!.toString().replace("note-", "");
+      const res = await createUrl(rawId, token);
+      console.log(res);
+      return { url: res.url };
+    } catch (err) {
+      console.error("개인 링크 생성 실패", err);
+      return new Response(
+        JSON.stringify({ success: false, message: "개인 링크 생성 실패" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+  }
 }
 export async function loader({ request, params }: Route.LoaderArgs) {
   const token = await getToken(request);
@@ -105,13 +132,13 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       ? { label: "만료됨", variant: "destructive" }
       : { label: `${remainingDays}일 남음`, variant: "secondary" };
   }
-  function extractTypes(node: any, types = new Set()) {
-    if (typeof node !== "object" || node === null) return types;
-    if (node.type) types.add(node.type);
-    if (node.content)
-      node.content.forEach((child: any) => extractTypes(child, types));
-    return types;
-  }
+  // function extractTypes(node: any, types = new Set()) {
+  //   if (typeof node !== "object" || node === null) return types;
+  //   if (node.type) types.add(node.type);
+  //   if (node.content)
+  //     node.content.forEach((child: any) => extractTypes(child, types));
+  //   return types;
+  // }
   return {
     note,
     statusBadge,
@@ -163,10 +190,73 @@ export default function NotePage({ loaderData }: Route.ComponentProps) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon">
+                    <ShareIcon className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Button
+                      variant="ghost"
+                      className="flex flex-row justify-start w-full items-center gap-2"
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          `${window.location.origin}/wisp/notes/${params.id}`
+                        );
+                        toast.success("페이지 링크가 복사되었습니다.");
+                      }}
+                    >
+                      <Link2 className="mr-2 h-4 w-4" />
+                      페이지 링크 복사
+                    </Button>
+                  </DropdownMenuItem>
+                  {note!.slug && (
+                    <DropdownMenuItem asChild>
+                      <Button
+                        variant="ghost"
+                        className="flex flex-row justify-start w-full items-center gap-2"
+                        onClick={() => {
+                          navigator.clipboard.writeText(
+                            `${window.location.origin}/wisp/notes/s/${
+                              note!.slug
+                            }`
+                          );
+                          toast.success("개인 링크가 복사되었습니다.");
+                        }}
+                      >
+                        <LinkIcon className="mr-2 h-4 w-4" />
+                        개인 링크 복사
+                      </Button>
+                    </DropdownMenuItem>
+                  )}
+
+                  <DropdownMenuItem asChild>
+                    <Button
+                      variant="ghost"
+                      className="flex flex-row justify-start w-full items-center gap-2"
+                      onClick={() => {
+                        fetcher.submit(null, { method: "POST" });
+                        toast.success("개인 링크가 생성되었습니다.");
+                      }}
+                    >
+                      <LinkIcon className="mr-2 h-4 w-4" />
+                      개인 링크 생성
+                    </Button>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <ShareDialog />
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
                     <MoreVerticalIcon className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 ">
+                <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem asChild>
                     <Button
                       asChild
@@ -188,37 +278,15 @@ export default function NotePage({ loaderData }: Route.ComponentProps) {
                       variant="ghost"
                       className="flex flex-row justify-start w-full items-center gap-2"
                       onClick={() => {
-                        if (confirm("정말 이 노트를 삭제하시겠습니까?")) {
-                          fetcher.submit(
-                            { id: params!.id! },
-                            { method: "delete" }
-                          );
-                        }
+                        fetcher.submit(
+                          { id: params!.id! },
+                          { method: "delete" }
+                        );
                       }}
                     >
                       <TrashIcon className="mr-2 h-4 w-4" />
                       삭제
                     </Button>
-                  </DropdownMenuItem>
-                  {!note!.is_shared && (
-                    <Button
-                      disabled={isExpired}
-                      variant="ghost"
-                      className="flex flex-row justify-start w-full items-center gap-2"
-                      onClick={() => {
-                        navigator.clipboard.writeText(
-                          `${window.location.origin}/wisp/notes/${params.id}`
-                        );
-                        toast.success("링크가 복사되었습니다.");
-                      }}
-                    >
-                      <Link2 className="mr-2 h-4 w-4" />
-                      링크 복사
-                    </Button>
-                  )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <ShareDialog />
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

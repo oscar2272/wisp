@@ -35,10 +35,11 @@ export function DeleteDialog({
     if (!item) return;
 
     fetcher.submit(
-      { id: item.id, token },
+      { token, id: item.id },
       {
         method: "delete",
         action: "/api/notes-action",
+        encType: "application/x-www-form-urlencoded",
       }
     );
 
