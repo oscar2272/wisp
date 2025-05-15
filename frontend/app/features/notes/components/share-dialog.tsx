@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LinkIcon } from "lucide-react";
 import {
   Dialog,
@@ -37,6 +37,7 @@ interface ShareDialogProps {
 }
 
 export function ShareDialog({ onSave }: ShareDialogProps) {
+  const [open, setOpen] = useState(false);
   const [shareType, setShareType] = useState<"private" | "public" | "shared">(
     "private"
   );
@@ -51,7 +52,17 @@ export function ShareDialog({ onSave }: ShareDialogProps) {
   );
   const params = useParams();
   const fetcher = useFetcher();
+  useEffect(() => {
+    // 혹시 다른 컴포넌트가 이 값을 건드렸다면 복원
+    if (!open) {
+      document.body.style.pointerEvents = "auto";
+    }
 
+    return () => {
+      // ESC로 닫히는 경우 포함하여 항상 복원
+      document.body.style.pointerEvents = "auto";
+    };
+  }, [open]);
   const handleSave = () => {
     const formData = new FormData();
     formData.append("shareType", shareType);
@@ -81,10 +92,12 @@ export function ShareDialog({ onSave }: ShareDialogProps) {
       action: `/wisp/notes/${params.id}`,
       method: "POST",
     });
+
+    setOpen(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
           variant="ghost"

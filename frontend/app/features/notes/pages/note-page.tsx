@@ -10,6 +10,7 @@ import {
   ChevronDownIcon,
   LinkIcon,
   MoreVerticalIcon,
+  Link2,
 } from "lucide-react";
 import { Badge } from "~/common/components/ui/badge";
 import { ShareDialog } from "../components/share-dialog";
@@ -32,6 +33,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/common/components/ui/tooltip";
+import { toast } from "sonner";
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
@@ -166,38 +168,54 @@ export default function NotePage({ loaderData }: Route.ComponentProps) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48 ">
                   <DropdownMenuItem asChild>
-                    <Link
-                      to={`/wisp/notes/${params.id}/edit`}
-                      className="flex items-center gap-2 pl-3"
+                    <Button
+                      asChild
+                      variant="ghost"
+                      className="flex flex-row justify-start w-full items-center gap-2"
                     >
-                      <PencilIcon className="mr-2 h-4 w-4" />
-                      수정
-                    </Link>
+                      <Link
+                        to={`/wisp/notes/${params.id}/edit`}
+                        className="flex items-center gap-2 pl-3"
+                      >
+                        <PencilIcon className="mr-2 h-4 w-4" />
+                        수정
+                      </Link>
+                    </Button>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild>
+                    <Button
+                      variant="ghost"
+                      className="flex flex-row justify-start w-full items-center gap-2"
+                      onClick={() => {
+                        if (confirm("정말 이 노트를 삭제하시겠습니까?")) {
+                          fetcher.submit(
+                            { id: params!.id! },
+                            { method: "delete" }
+                          );
+                        }
+                      }}
+                    >
+                      <TrashIcon className="mr-2 h-4 w-4" />
+                      삭제
+                    </Button>
                   </DropdownMenuItem>
                   {!note!.is_shared && (
-                    <DropdownMenuItem
+                    <Button
                       disabled={isExpired}
-                      className="flex items-center gap-2"
-                    >
-                      <LinkIcon className="h-4 w-4" />
-                      링크 복사
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    className="flex items-center gap-2 pl-3"
-                    onClick={() => {
-                      if (confirm("정말 이 노트를 삭제하시겠습니까?")) {
-                        fetcher.submit(
-                          { id: params!.id! },
-                          { method: "delete" }
+                      variant="ghost"
+                      className="flex flex-row justify-start w-full items-center gap-2"
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          `${window.location.origin}/wisp/notes/${params.id}`
                         );
-                      }
-                    }}
-                  >
-                    <TrashIcon className="mr-2 h-4 w-4" />
-                    삭제
-                  </DropdownMenuItem>
+                        toast.success("링크가 복사되었습니다.");
+                      }}
+                    >
+                      <Link2 className="mr-2 h-4 w-4" />
+                      링크 복사
+                    </Button>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <ShareDialog />
