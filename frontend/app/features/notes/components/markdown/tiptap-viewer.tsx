@@ -1,5 +1,4 @@
 import { renderToHTMLString } from "@tiptap/static-renderer";
-import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import type { JSONContent } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import Heading from "@tiptap/extension-heading";

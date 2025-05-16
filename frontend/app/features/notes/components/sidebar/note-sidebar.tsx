@@ -10,13 +10,7 @@ import {
   SidebarFooter,
   SidebarRail,
 } from "~/common/components/ui/sidebar";
-import {
-  Link,
-  Navigate,
-  useFetcher,
-  useNavigate,
-  useParams,
-} from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { Home, Trash2, Settings, Archive } from "lucide-react";
 import UserPopOverMenu from "./user-popover";
 import { useEffect, useState } from "react";
@@ -26,7 +20,6 @@ import { RenameDialog } from "./rename-dialog";
 import { CreateDialog } from "./create-dialog";
 import { DeleteDialog } from "./delete-dialog";
 import { NotePopover } from "./note-popover";
-import { Skeleton } from "~/common/components/ui/skeleton";
 import { toast } from "sonner";
 export default function NoteSidebar({
   email,

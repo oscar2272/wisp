@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@tiptap/extension-code-block": "^2.12.0"
+  }
+}

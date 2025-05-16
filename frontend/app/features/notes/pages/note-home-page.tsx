@@ -15,7 +15,7 @@ import {
   SelectItem,
 } from "~/common/components/ui/select";
 import { Input } from "~/common/components/ui/input";
-import { useSearchParams, useNavigate } from "react-router";
+import { useSearchParams } from "react-router";
 
 const mockNotes = [
   {

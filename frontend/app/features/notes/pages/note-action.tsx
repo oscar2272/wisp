@@ -13,7 +13,6 @@ import {
   containsHangulJamo,
   containsProfanity,
 } from "~/features/profiles/utils/name-filter";
-import { toast } from "sonner";
 const formSchema = z.object({
   name: z
     .string()

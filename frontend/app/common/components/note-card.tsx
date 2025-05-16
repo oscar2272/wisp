@@ -5,12 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "~/common/components/ui/card";
-import {
-  EyeIcon,
-  MessageCircleIcon,
-  HeartIcon,
-  ThumbsUpIcon,
-} from "lucide-react";
+import { EyeIcon, MessageCircleIcon, ThumbsUpIcon } from "lucide-react";
 import { Link } from "react-router";
 import { Separator } from "~/common/components/ui/separator";
 import { DateTime } from "luxon";
@@ -114,16 +109,14 @@ export function NoteCard({
             {title}
           </CardTitle>
         </CardHeader>
-        <CardContent className="px-4 pb-2 text-sm text-muted-foreground">
-          <p className="line-clamp-3 h-[4.5rem]">
-            {extractFirstText(description)}
-          </p>
+        <CardContent className="px-4 h-full text-sm text-muted-foreground">
+          <p className="line-clamp-4 h-19">{extractFirstText(description)}</p>
         </CardContent>
       </Link>
 
       <Separator />
 
-      <CardFooter className="px-4 py-0 flex items-center justify-between text-[11px]">
+      <CardFooter className="px-4 flex items-center justify-between text-[11px]">
         <div className="flex items-center gap-1.5">
           <img
             // src={author.avatar}

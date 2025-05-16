@@ -1,7 +1,6 @@
-import { GithubIcon, HomeIcon, LockIcon, UserIcon } from "lucide-react";
+import { GithubIcon, LockIcon, UserIcon } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "~/common/components/ui/button";
-import { Separator } from "~/common/components/ui/separator";
 
 export default function AuthButtons() {
   return (

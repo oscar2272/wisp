@@ -8,7 +8,6 @@ import {
   ThumbsUpIcon,
   MessageCircleIcon,
   MoreVerticalIcon,
-  Link2,
   LinkIcon,
 } from "lucide-react";
 import { Badge } from "~/common/components/ui/badge";

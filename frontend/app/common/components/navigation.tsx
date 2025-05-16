@@ -12,7 +12,6 @@ import {
   BarChart3Icon,
   BellIcon,
   LogOutIcon,
-  MessageCircleIcon,
   SettingsIcon,
   UserIcon,
 } from "lucide-react";

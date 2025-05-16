@@ -30,6 +30,8 @@ from django.shortcuts import get_object_or_404
 from .models import NoteComment
 from .utils.random_slug import generate_unique_slug
 from django.db.models import Count
+
+
 # 사이드바 전용 뷰
 class TreeItemListRetrieveView(APIView):
     authentication_classes = [SupabaseJWTAuthentication]
@@ -140,8 +142,6 @@ class NoteDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-
-
 # edit페이지에서 데이터 조회/수정
 class NoteDetailEditView(APIView):
     authentication_classes = [SupabaseJWTAuthentication]
@@ -181,11 +181,11 @@ class SlugRetrieveCreateView(APIView):
     authentication_classes = [SupabaseJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request,pk):
+    def get(self, request, pk):
         note = get_object_or_404(Note, id=pk, author=request.user)
         return Response({"url": f"https://wisp.app/share/note/{note.slug}"}, status=status.HTTP_200_OK)
 
-    def post(self, request,pk):
+    def post(self, request, pk):
         note = get_object_or_404(Note, id=pk, author=request.user)
         slug = generate_unique_slug()
         print(slug)
@@ -201,7 +201,7 @@ class NoteDetailShareView(APIView):
 
     def patch(self, request, pk):
         note = get_object_or_404(Note, id=pk, author=request.user)
-        serializer = NoteDetailShareSerializer(note, data=request.data, partial=True) #update 오버라이딩
+        serializer = NoteDetailShareSerializer(note, data=request.data, partial=True)  # update 오버라이딩
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
@@ -221,6 +221,7 @@ class NoteListView(APIView):
         )
         serializer = NoteListSerializer(notes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class NoteShareRetrieveView(APIView):
     authentication_classes = []

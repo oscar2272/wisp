@@ -1,9 +1,5 @@
 import { Outlet, redirect } from "react-router";
-import {
-  SidebarProvider,
-  SidebarInset,
-  SidebarTrigger,
-} from "~/common/components/ui/sidebar";
+import { SidebarProvider, SidebarInset } from "~/common/components/ui/sidebar";
 import NoteSidebar from "../components/sidebar/note-sidebar";
 import { makeSSRClient } from "~/supa-client";
 import { getLoggedInUserId } from "~/features/profiles/queries";
@@ -14,9 +10,6 @@ import type { TreeItem } from "../type";
 import { getNotesSidebar, getTrash } from "../api";
 import { TokenContext } from "~/context/token-context";
 import { Toaster } from "sonner";
-import { useFetcher } from "react-router";
-import { Skeleton } from "~/common/components/ui/skeleton";
-import SidebarSkeletonUI from "../components/sidebar-skeleton-ui";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   // 테스트를 위한 3초 지연

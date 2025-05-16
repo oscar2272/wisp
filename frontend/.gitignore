@@ -6,5 +6,5 @@
 /build/
 
 .env
-
+.env.sample
 .cursorrules

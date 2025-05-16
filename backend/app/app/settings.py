@@ -30,8 +30,17 @@ DEBUG = bool(int(os.environ.get('DEBUG', 0)))
 # SECURITY WARNING: don't run with debug turned on in production!
 
 ALLOWED_HOSTS = []
+ALLOWED_HOSTS.extend(
+    filter(
+        None,
+        os.environ.get('DJANGO_ALLOWED_HOSTS','').split(',')
+    )
+)
 
-
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "https://myapp.com",      # 배포용 프론트
+]
 
 # Application definition
 
