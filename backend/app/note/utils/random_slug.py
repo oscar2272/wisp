@@ -1,5 +1,6 @@
 import secrets
 
+
 def generate_unique_slug():
     from ..models import Note
     while True:

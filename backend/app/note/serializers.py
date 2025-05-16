@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import Folder, Note
 from django.utils import timezone
 from user.serializers import ProfileSimpleSerializer
+
+
 # 폴더 생성 serializer
 class TreeItemFolderSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
@@ -48,6 +50,7 @@ class TreeItemNoteSerializer(serializers.ModelSerializer):
 class NoteDetailSerializer(serializers.ModelSerializer):
     comments_count = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Note
         fields = (
@@ -115,9 +118,11 @@ class NoteListSerializer(serializers.ModelSerializer):
     seen_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Note
-        fields = ("id","author", "title", "content", "likes_count", "comments_count", "seen_count", "updated_at", "expires_at")
+        fields = ("id", "author", "title", "content", "likes_count", "comments_count",
+                  "seen_count", "updated_at", "expires_at")
 
     def get_seen_count(self, obj):
         return obj.views.count()
@@ -134,9 +139,11 @@ class NoteShareSerializer(serializers.ModelSerializer):
     likes_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
     seen_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Note
-        fields = ("id", "title", "content", "likes_count", "comments_count", "seen_count", "updated_at", "expires_at","shared_at", "author",)
+        fields = ("id", "title", "content", "likes_count", "comments_count", "seen_count",
+                  "updated_at", "expires_at", "shared_at", "author")
 
     def get_seen_count(self, obj):
         return obj.views.count()

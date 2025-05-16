@@ -8,10 +8,12 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ["name", "avatar", "created_at"]
         read_only_fields = ["created_at"]
 
+
 class ProfileSimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ["name", "avatar"]
+
 
 class ProfileWithEmailSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(source="user.email", read_only=True)

@@ -10,6 +10,7 @@ import {
   EyeIcon,
   ClockIcon,
   ChevronUpIcon,
+  CalendarIcon,
 } from "lucide-react";
 import { Separator } from "../components/ui/separator";
 
@@ -30,67 +31,91 @@ export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
   const remainingDays = expiresAt
     ? Math.floor(expiresAt.diff(now, "days").days)
     : null;
+  const formattedDate = DateTime.fromISO(note.updated_at).toFormat(
+    "yyyy.MM.dd"
+  );
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
-      <div className="flex flex-col gap-6 mb-8">
-        {/* 메타 정보 영역 */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+    <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="space-y-6">
+        {/* 제목 및 날짜 */}
+        <div>
+          <h1 className="text-3xl font-bold">{note.title || "제목 없음"}</h1>
+          <div className="flex flex-row mt-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <CalendarIcon className="h-4 w-4" />
+
+              {formattedDate}
+            </div>
+
+            {remainingDays !== null && (
+              <Badge
+                variant="outline"
+                className="ml-2 bg-amber-500/10 text-amber-500 border-amber-500/20"
+              >
+                {remainingDays}일 남음
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        {/* 작성자 정보와 통계를 한 줄에 배치 */}
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center gap-2">
             <img
               src={avatarUrl}
               alt={note.author.name}
-              className="w-8 h-8 object-cover rounded-full"
+              className="w-6 h-6 object-cover rounded-full border border-primary/10"
             />
-            <span className="text-sm">{note.author.name}</span>
+            <span className="font-medium">{note.author.name}</span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="flex gap-1 items-center">
-                <ThumbsUpIcon className="size-3" />
-                {note.likes_count}
-              </Badge>
-              <Badge variant="outline" className="flex gap-1 items-center">
-                <MessageCircleIcon className="size-3" />
-                {note.comments_count}
-              </Badge>
-              <Badge variant="outline" className="flex gap-1 items-center">
-                <EyeIcon className="size-3" />
-                {note.seen_count}
-              </Badge>
-              {remainingDays !== null && (
-                <Badge variant="secondary" className="flex gap-1 items-center">
-                  <ClockIcon className="size-3" />
-                  {remainingDays}일 남음
-                </Badge>
-              )}
-            </div>
-            <Button
+          <div className="flex items-center gap-4 text-muted-foreground">
+            <Badge variant="outline" asChild>
+              <Button variant="ghost" size={null} className="h-6 px-2">
+                <ChevronUpIcon className="size-4" />
+                <span>{note.likes_count}</span>
+              </Button>
+            </Badge>
+            <Badge
               variant="outline"
-              size="sm"
-              className="flex items-center"
-              onClick={() => {
-                // TODO: 좋아요 기능 구현
-              }}
+              className="h-6 px-2 flex items-center gap-1"
             >
-              <ChevronUpIcon className="size-4" />
-            </Button>
+              <MessageCircleIcon className="size-4" />
+              <span>{note.comments_count}</span>
+            </Badge>
+            <Badge
+              variant="outline"
+              className="h-6 px-2 flex items-center gap-1"
+            >
+              <EyeIcon className="size-4" />
+              <span>{note.seen_count}</span>
+            </Badge>
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">{note.title || "제목 없음"}</h1>
-          <span className="text-sm text-muted-foreground">
-            최신: {DateTime.fromISO(note.updated_at).toFormat("yyyy.MM.dd")}
-          </span>
-        </div>
-
-        <Separator className="my-2" />
+        <Separator />
       </div>
 
-      <div className="prose dark:prose-invert">
+      <div className="prose dark:prose-invert max-w-none">
         <TiptapReadOnlyViewer content={note.content} />
+      </div>
+
+      {/* 하단 네비게이션 */}
+      <div className="mt-12 pt-6 border-t border-border">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm">
+              이전 글
+            </Button>
+            <Button variant="outline" size="sm">
+              다음 글
+            </Button>
+          </div>
+          <Button variant="secondary" size="sm">
+            목록으로
+          </Button>
+        </div>
       </div>
     </div>
   );
