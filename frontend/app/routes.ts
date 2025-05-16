@@ -8,8 +8,8 @@ import {
 
 export default [
   layout("common/layouts/navigation-layout.tsx", [
+    index("common/pages/home-page.tsx"),
     ...prefix("/wisp", [
-      index("common/pages/home-page.tsx"),
       route("/explore", "common/pages/explore-page.tsx"),
       route("/explore/:id", "common/pages/explore-note-page.tsx"),
     ]),

@@ -40,7 +40,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
   if (verifyError) {
     return { verifyError: verifyError.message };
   }
-  return redirect("/wisp", { headers });
+  return redirect("/", { headers });
 };
 
 export default function OtpPage({ actionData }: Route.ComponentProps) {
@@ -52,7 +52,7 @@ export default function OtpPage({ actionData }: Route.ComponentProps) {
   return (
     <div className="flex flex-col relative items-center justify-center h-full">
       <Button variant="ghost" className="absolute left-4 top-4" asChild>
-        <Link to="/wisp">
+        <Link to="/">
           <ArrowLeft className="h-4 w-4 mr-2" />
           HOME
         </Link>

@@ -39,7 +39,7 @@ ALLOWED_HOSTS.extend(
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "https://myapp.com",      # 배포용 프론트
+    "https://wisp-three.vercel.app/",      # 배포용 프론트
 ]
 
 # Application definition
@@ -138,12 +138,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = '/static/static/' #기존 : STATIC_URL = 'static/'
-MEDIA_URL = '/static/media/' #기존 : MEDIA_URL = '/media/'
+STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
 
-MEDIA_ROOT = '/vol/web/media'
 STATIC_ROOT = '/vol/web/static'
-
+MEDIA_ROOT = '/vol/web/media'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 

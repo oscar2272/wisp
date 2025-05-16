@@ -16,10 +16,14 @@ import type { JSONContent } from "@tiptap/react";
 // mock loader
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const notes = (await getNoteList()) as NoteList[];
-  const parsed: JSONContent =
-    typeof notes[0].content === "string"
-      ? JSON.parse(notes[0].content)
-      : notes[0].content;
+  if (notes.length === 0) {
+    return { notes: [] };
+  } else {
+    const parsed: JSONContent =
+      typeof notes[0].content === "string"
+        ? JSON.parse(notes[0].content)
+        : notes[0].content;
+  }
 
   return { notes };
 };
@@ -43,44 +47,51 @@ export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
             <Button type="submit">Search</Button>
           </Form>
         </div>
-
-        <TabsContent value="popular">
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 mt-6">
-            {notes.map((note) => (
-              <NoteCard
-                key={note.id}
-                postId={note.id}
-                title={note.title}
-                date={note.updated_at}
-                expires_at={note.expires_at}
-                description={note.content.content!}
-                author={note.author}
-                views={note.seen_count}
-                comments={note.comments_count}
-                likes={note.likes_count}
-              />
-            ))}
+        {notes.length === 0 ? (
+          <div className="flex justify-center items-center h-full">
+            <p className="text-2xl font-bold">No notes found</p>
           </div>
-        </TabsContent>
+        ) : (
+          <>
+            <TabsContent value="popular">
+              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 mt-6">
+                {notes.map((note) => (
+                  <NoteCard
+                    key={note.id}
+                    postId={note.id}
+                    title={note.title}
+                    date={note.updated_at}
+                    expires_at={note.expires_at}
+                    description={note.content.content!}
+                    author={note.author}
+                    views={note.seen_count}
+                    comments={note.comments_count}
+                    likes={note.likes_count}
+                  />
+                ))}
+              </div>
+            </TabsContent>
 
-        <TabsContent value="newest">
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 mt-6">
-            {notes.map((note) => (
-              <NoteCard
-                key={note.id}
-                postId={note.id}
-                title={note.title}
-                date={note.updated_at}
-                expires_at={note.expires_at}
-                description={note.content.content!}
-                author={note.author}
-                views={note.seen_count}
-                comments={note.comments_count}
-                likes={note.likes_count}
-              />
-            ))}
-          </div>
-        </TabsContent>
+            <TabsContent value="newest">
+              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 mt-6">
+                {notes.map((note) => (
+                  <NoteCard
+                    key={note.id}
+                    postId={note.id}
+                    title={note.title}
+                    date={note.updated_at}
+                    expires_at={note.expires_at}
+                    description={note.content.content!}
+                    author={note.author}
+                    views={note.seen_count}
+                    comments={note.comments_count}
+                    likes={note.likes_count}
+                  />
+                ))}
+              </div>
+            </TabsContent>
+          </>
+        )}
       </Tabs>
     </div>
   );

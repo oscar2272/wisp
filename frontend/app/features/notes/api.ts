@@ -2,7 +2,8 @@ import { makeSSRClient } from "~/supa-client";
 import { getToken } from "~/features/profiles/api";
 import type { EditNote, Note } from "./type";
 // app/features/profiles/api.ts
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "https://www.api-wisp.site";
+
 const USER_API_URL = `${BASE_URL}/api/notes`;
 
 // 노트 사이드바 가져오기

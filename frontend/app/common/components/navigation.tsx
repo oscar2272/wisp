@@ -69,7 +69,7 @@ export default function Navigation({
     <div className="xl:px-32 lg:px-24 md:px-16 px-8 flex flex-row h-16 justify-between">
       <div className=" items-center flex">
         <Link
-          to="/wisp"
+          to="/"
           className="font-bold text-lg tracking-tighter md:block hidden mr-20"
         >
           Wisp

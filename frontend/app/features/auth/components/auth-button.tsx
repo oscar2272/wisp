@@ -19,7 +19,7 @@ export default function AuthButtons() {
           </Link>
         </Button>
         <Button variant="outline" className="w-full" asChild>
-          <Link to="/wisp">
+          <Link to="/">
             <UserIcon className="h-4 w-4" />
             Guest
           </Link>

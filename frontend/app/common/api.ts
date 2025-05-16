@@ -1,4 +1,5 @@
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "https://www.api-wisp.site";
+
 const USER_API_URL = `${BASE_URL}/api/notes`;
 
 export async function getNoteList() {

@@ -10,6 +10,11 @@ import { Link } from "react-router";
 import { Separator } from "~/common/components/ui/separator";
 import { DateTime } from "luxon";
 import { Badge } from "~/common/components/ui/badge";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "~/common/components/ui/avatar";
 
 interface NoteCardProps {
   postId: string;
@@ -118,12 +123,17 @@ export function NoteCard({
 
       <CardFooter className="px-4 flex items-center justify-between text-[11px]">
         <div className="flex items-center gap-1.5">
-          <img
-            // src={author.avatar}
-            src="http://127.0.0.1:8000/static/media/uploads/profiles/profile-dc56ef06-9d04-47f4-b234-841e60006338.png"
-            alt={author.name}
-            className="w-7 h-7 rounded-full object-cover"
-          />
+          <Avatar>
+            {author.avatar ? (
+              <AvatarImage
+                src={author.avatar}
+                alt="avatar"
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <AvatarFallback>{author.name?.[0]}</AvatarFallback>
+            )}
+          </Avatar>
 
           <span className="font-medium text-xs text-foreground">
             {author.name}

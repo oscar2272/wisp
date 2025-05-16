@@ -2,7 +2,8 @@ import type { UserProfile } from "./type";
 import { makeSSRClient } from "~/supa-client";
 import { jwtDecode } from "jwt-decode";
 // app/features/profiles/api.ts
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "https://www.api-wisp.site";
+
 const USER_API_URL = `${BASE_URL}/api/users`;
 
 export async function SignInOrSignUp(token: string) {

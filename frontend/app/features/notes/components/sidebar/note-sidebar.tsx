@@ -143,7 +143,7 @@ export default function NoteSidebar({
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <Link to="/wisp">
+                    <Link to="/">
                       <Home className="size-4" />
                       <span>Home</span>
                     </Link>

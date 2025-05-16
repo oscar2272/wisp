@@ -11,6 +11,7 @@ import {
   CalendarIcon,
 } from "lucide-react";
 import { Separator } from "../components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const id = params.id;
@@ -23,7 +24,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
   const { note } = loaderData;
-  const avatarUrl = "http://127.0.0.1:8000" + note.author.avatar;
+  // const avatarUrl = "http://127.0.0.1:8000" + note.author.avatar; //dev
+  const avatarUrl = note.author.avatar; //prod
   const now = DateTime.now();
   const expiresAt = note.expires_at ? DateTime.fromISO(note.expires_at) : null;
   const remainingDays = expiresAt
@@ -60,11 +62,17 @@ export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
         {/* 작성자 정보와 통계를 한 줄에 배치 */}
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-2">
-            <img
-              src={avatarUrl}
-              alt={note.author.name}
-              className="w-6 h-6 object-cover rounded-full border border-primary/10"
-            />
+            <Avatar>
+              {note.author.avatar ? (
+                <AvatarImage
+                  src={note.author.avatar}
+                  alt="avatar"
+                  className="object-cover w-full h-full"
+                />
+              ) : (
+                <AvatarFallback>{note.author.name?.[0]}</AvatarFallback>
+              )}
+            </Avatar>
             <span className="font-medium">{note.author.name}</span>
           </div>
 

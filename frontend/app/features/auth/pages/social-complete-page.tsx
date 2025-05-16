@@ -22,5 +22,5 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   if (error) {
     throw error;
   }
-  return redirect("/wisp", { headers });
+  return redirect("/", { headers });
 };
