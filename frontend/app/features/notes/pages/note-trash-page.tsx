@@ -16,6 +16,7 @@ export default function NoteTrashPage() {
   const { trash } = useOutletContext() as {
     trash: TreeItem[];
   };
+  console.log(trash);
   const handleDelete = (trash: TreeItem) => {
     console.log("trash", trash);
   };
@@ -54,7 +55,7 @@ export default function NoteTrashPage() {
       <Alert>
         <AlertCircle className="size-4" />
         <AlertDescription>
-          휴지통의 항목은 30일 후 자동으로 영구 삭제됩니다
+          휴지통의 항목은 00일 후 자동으로 영구 삭제됩니다 ( 추가예정 )
         </AlertDescription>
       </Alert>
 

@@ -14,6 +14,12 @@ class ProfileSimpleSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ["name", "avatar"]
 
+    def get_avatar(self, obj):
+        request = self.context.get("request")
+        if request and obj.avatar:
+            return request.build_absolute_uri(obj.avatar.url)
+        return obj.avatar.url if obj.avatar else None
+
 
 class ProfileWithEmailSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(source="user.email", read_only=True)

@@ -1,5 +1,5 @@
 import Navigation from "../components/navigation";
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 import type { Route } from "./+types/navigation-layout";
 import { makeSSRClient } from "~/supa-client";
 import { getLoggedInUserId } from "~/features/profiles/queries";
@@ -24,6 +24,8 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 export default function NavigationLayout({ loaderData }: Route.ComponentProps) {
   const isLoggedIn = !!loaderData && loaderData.userId !== null;
   const profile = loaderData?.profile;
+  const location = useLocation();
+
   return (
     <>
       <nav className="w-full fixed top-0 left-0 right-0 z-50 backdrop-blur bg-white/70 	shadow-sm">

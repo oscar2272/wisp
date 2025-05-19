@@ -173,7 +173,7 @@ export default function NoteSidebar({
               />
             </div>
 
-            <SidebarGroupContent className="h-[calc(100vh-16rem)] custom-scrollbar">
+            <SidebarGroupContent className="h-[calc(100vh-16rem)] custom-scrollbar overflow-x-scroll">
               <SidebarTreeMenu
                 items={notes}
                 onRename={openRenameDialog}

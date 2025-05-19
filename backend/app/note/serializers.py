@@ -153,3 +153,36 @@ class NoteShareSerializer(serializers.ModelSerializer):
 
     def get_likes_count(self, obj):
         return obj.likes.count()
+
+    def get_avatar(self, obj):
+        request = self.context.get("request")
+        if request and obj.author.profile.avatar:
+            return request.build_absolute_uri(obj.author.profile.avatar.url)
+        return obj.author.profile.avatar.url if obj.author.profile.avatar else None
+
+
+class NoteHomeSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField()
+    likes_count = serializers.SerializerMethodField()
+    comments_count = serializers.SerializerMethodField()
+    seen_count = serializers.SerializerMethodField()
+    class Meta:
+        model = Note
+        fields = ("id", "file_name", "title","likes_count", "comments_count", "seen_count",
+                  "updated_at", "expires_at","type")
+
+    def get_seen_count(self, obj):
+        return obj.views.count()
+
+    def get_comments_count(self, obj):
+        return obj.comments.count()
+
+    def get_likes_count(self, obj):
+        return obj.likes.count()
+
+    def get_type(self, obj):
+        if obj.is_public:
+            return "public"
+        elif obj.is_shared:
+            return "shared"
+        return "private"

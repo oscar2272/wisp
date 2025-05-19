@@ -43,7 +43,9 @@ export function TiptapReadOnlyViewer({
         OrderedList,
         ListItem,
         TaskList,
-        TaskItem,
+        TaskItem.configure({
+          nested: true,
+        }),
         CodeBlockLowlight.configure({ lowlight }),
         Highlight,
         Underline,

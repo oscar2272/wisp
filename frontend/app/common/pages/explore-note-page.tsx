@@ -24,8 +24,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
   const { note } = loaderData;
-  // const avatarUrl = "http://127.0.0.1:8000" + note.author.avatar; //dev
-  const avatarUrl = note.author.avatar; //prod
   const now = DateTime.now();
   const expiresAt = note.expires_at ? DateTime.fromISO(note.expires_at) : null;
   const remainingDays = expiresAt

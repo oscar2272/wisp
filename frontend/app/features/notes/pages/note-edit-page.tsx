@@ -83,7 +83,7 @@ export default function NoteEditPage({ loaderData }: Route.ComponentProps) {
           </div>
 
           {/* 에디터 영역 */}
-          <div className="px-4">
+          <div className="">
             {/* 서버로 보낼 JSON 문자열 */}
             <input type="hidden" name="content" value={content} />
 

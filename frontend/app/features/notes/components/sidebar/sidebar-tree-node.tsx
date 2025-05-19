@@ -6,7 +6,7 @@ import {
   SidebarMenuSubItem,
 } from "~/common/components/ui/sidebar";
 import { FileText, FolderIcon, ChevronDown } from "lucide-react";
-import { Link, useParams } from "react-router";
+import { Link, useLocation, useParams } from "react-router";
 import { useState } from "react";
 import { NoteContextMenu } from "./note-context-menu";
 import type { TreeNode } from "../../utils/build-tree";
@@ -29,8 +29,8 @@ export function SidebarTreeNode({
   const isFolder = node.type === "folder";
   const hasChildren = node.children && node.children.length > 0;
   const [isFolderOpen, setIsFolderOpen] = useState(false);
-  const params = useParams();
-  const isActive = params.slug === node.id && !isFolder;
+  const location = useLocation();
+  const isActive = location.pathname === `/wisp/notes/${node.id}`;
   return (
     <SidebarMenuItem className="group-data-[collapsible=icon]:hidden">
       <NoteContextMenu

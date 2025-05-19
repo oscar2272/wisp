@@ -1,8 +1,7 @@
-import type { UserProfile } from "./type";
 import { makeSSRClient } from "~/supa-client";
 import { jwtDecode } from "jwt-decode";
 // app/features/profiles/api.ts
-const BASE_URL = "https://www.api-wisp.site";
+const BASE_URL = process.env.VITE_API_BASE_URL;
 
 const USER_API_URL = `${BASE_URL}/api/users`;
 
@@ -25,7 +24,6 @@ export async function getUserProfile(token: string) {
     },
   });
   if (!res.ok) {
-    console.log(await res.text());
     throw new Error("Failed to fetch profile");
   }
   return res.json();
@@ -73,7 +71,6 @@ let sessionCache: { token: string | null } | null = null;
 
 export async function getToken(request: Request): Promise<string | null> {
   const cached = sessionCache?.token;
-
   if (cached) {
     try {
       const { exp } = jwtDecode<{ exp: number }>(cached);
