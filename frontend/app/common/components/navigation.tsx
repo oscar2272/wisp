@@ -7,7 +7,7 @@ import {
   navigationMenuTriggerStyle,
   NavigationMenuLink,
 } from "~/common/components/ui/navigation-menu";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import {
   BarChart3Icon,
   BellIcon,
@@ -26,6 +26,7 @@ import {
   DropdownMenuItem,
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
+import { cn } from "~/lib/utils";
 
 const menus = [
   {
@@ -65,6 +66,8 @@ export default function Navigation({
   username?: string;
   avatar?: string | null;
 }) {
+  const location = useLocation();
+
   return (
     <div className="xl:px-32 lg:px-24 md:px-16 px-8 flex flex-row h-16 justify-between">
       <div className=" items-center flex">
@@ -90,7 +93,10 @@ export default function Navigation({
                             <NavigationMenuLink asChild>
                               <Link
                                 to={item.to}
-                                className="flex flex-col gap-1 p-2 hover:bg-accent rounded-md"
+                                className={cn(
+                                  "flex flex-col gap-1 p-2 hover:bg-accent rounded-md",
+                                  location.pathname === item.to && "bg-accent"
+                                )}
                               >
                                 <div className="text-sm font-medium">
                                   {item.name}
@@ -108,7 +114,13 @@ export default function Navigation({
                     </NavigationMenuContent>
                   </>
                 ) : (
-                  <Link className={navigationMenuTriggerStyle()} to={menu.to}>
+                  <Link
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      location.pathname === menu.to && "bg-accent"
+                    )}
+                    to={menu.to}
+                  >
                     {menu.name}
                   </Link>
                 )}

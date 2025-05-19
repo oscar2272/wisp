@@ -310,7 +310,22 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
       data-state={state}
       className={cn(
         "bg-background relative flex w-full flex-1 flex-col",
-        "data-[state=expanded]:mx-12 data-[state=collapsed]:mx-32 transition-all duration-200 ease-linear",
+        // expanded 상태 반응형 마진
+        "data-[state=expanded]:mx-2", // xs default
+        "sm:data-[state=expanded]:mx-4", // sm: 640px
+        "md:data-[state=expanded]:mx-8", // md: 768px
+        "lg:data-[state=expanded]:mx-10", // lg: 1024px
+        "xl:data-[state=expanded]:mx-12", // xl: 1280px
+
+        // collapsed 상태 반응형 마진
+        "data-[state=collapsed]:mx-4", // xs default
+        "sm:data-[state=collapsed]:mx-8", // sm: 640px
+        "md:data-[state=collapsed]:mx-16", // md: 768px
+        "lg:data-[state=collapsed]:mx-24", // lg: 1024px
+        "xl:data-[state=collapsed]:mx-32", // xl: 1280px
+
+        "transition-all duration-200 ease-linear",
+        // inset 변형 스타일 유지
         "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
         className
       )}

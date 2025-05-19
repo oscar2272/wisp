@@ -39,7 +39,6 @@ export async function action({ request, params }: Route.ActionArgs) {
   }
 
   if (request.method === "DELETE") {
-    console.log("삭제 실행");
     try {
       const id = params.id;
       const rawId = id!.toString().replace("note-", "");
@@ -76,12 +75,10 @@ export async function action({ request, params }: Route.ActionArgs) {
     }
   }
   if (request.method === "POST") {
-    console.log("개인 링크 생성 실행");
     try {
       const id = params.id;
       const rawId = id!.toString().replace("note-", "");
       const res = await createUrl(rawId, token);
-      console.log(res);
       return { url: res.url };
     } catch (err) {
       console.error("개인 링크 생성 실패", err);
@@ -124,27 +121,29 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     expiryBadge = null; // 비공개는 만료 의미 없음
   } else if (note.is_public) {
     statusBadge = { label: "공개중", variant: "secondary" };
-    expiryBadge = isExpired
-      ? { label: "만료됨", variant: "destructive" }
-      : { label: `${remainingDays}일 남음`, variant: "secondary" };
+    if (!expiresAt) {
+      expiryBadge = { label: "무기한", variant: "secondary" };
+    } else {
+      expiryBadge = isExpired
+        ? { label: "만료됨", variant: "destructive" }
+        : { label: `${remainingDays}일 남음`, variant: "secondary" };
+    }
   } else {
     statusBadge = { label: "공유중", variant: "secondary" };
-    expiryBadge = isExpired
-      ? { label: "만료됨", variant: "destructive" }
-      : { label: `${remainingDays}일 남음`, variant: "secondary" };
+    if (!expiresAt) {
+      expiryBadge = { label: "무기한", variant: "secondary" };
+    } else {
+      expiryBadge = isExpired
+        ? { label: "만료됨", variant: "destructive" }
+        : { label: `${remainingDays}일 남음`, variant: "secondary" };
+    }
   }
   let url = null;
   if (note.slug !== null) {
     const res = await getUrl(rawId, token);
     url = res.url;
   }
-  // function extractTypes(node: any, types = new Set()) {
-  //   if (typeof node !== "object" || node === null) return types;
-  //   if (node.type) types.add(node.type);
-  //   if (node.content)
-  //     node.content.forEach((child: any) => extractTypes(child, types));
-  //   return types;
-  // }
+
   return {
     note,
     statusBadge,

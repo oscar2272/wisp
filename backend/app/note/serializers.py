@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Folder, Note
 from django.utils import timezone
 from user.serializers import ProfileSimpleSerializer
-
+from rest_framework.fields import SerializerMethodField
 
 # 폴더 생성 serializer
 class TreeItemFolderSerializer(serializers.ModelSerializer):
@@ -107,6 +107,8 @@ class NoteDetailShareSerializer(serializers.ModelSerializer):
                 instance.is_public = False
                 instance.expires_at = expiry_date
                 instance.shared_at = timezone.now()
+            elif share_type == "expired":
+                instance.expires_at = timezone.now()
 
         # 🧠 나머지 기본 업데이트
         return super().update(instance, validated_data)
@@ -114,7 +116,7 @@ class NoteDetailShareSerializer(serializers.ModelSerializer):
 
 # explore 페이지 note list serializer   / author nested serializer
 class NoteListSerializer(serializers.ModelSerializer):
-    author = ProfileSimpleSerializer(source="author.profile", read_only=True)
+    author = serializers.SerializerMethodField()
     seen_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
@@ -133,9 +135,13 @@ class NoteListSerializer(serializers.ModelSerializer):
     def get_likes_count(self, obj):
         return obj.likes.count()
 
+    def get_author(self, obj):
+        return ProfileSimpleSerializer(obj.author.profile, context=self.context).data
+
+
 
 class NoteShareSerializer(serializers.ModelSerializer):
-    author = ProfileSimpleSerializer(source="author.profile", read_only=True)
+    author = SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
     seen_count = serializers.SerializerMethodField()
@@ -153,3 +159,36 @@ class NoteShareSerializer(serializers.ModelSerializer):
 
     def get_likes_count(self, obj):
         return obj.likes.count()
+
+    def get_author(self, obj):
+        return ProfileSimpleSerializer(obj.author.profile, context=self.context).data
+
+
+
+
+class NoteHomeSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField()
+    likes_count = serializers.SerializerMethodField()
+    comments_count = serializers.SerializerMethodField()
+    seen_count = serializers.SerializerMethodField()
+    class Meta:
+        model = Note
+        fields = ("id", "file_name", "title","likes_count", "comments_count", "seen_count",
+                  "updated_at", "expires_at","type")
+
+    def get_seen_count(self, obj):
+        return obj.views.count()
+
+    def get_comments_count(self, obj):
+        return obj.comments.count()
+
+    def get_likes_count(self, obj):
+        return obj.likes.count()
+
+    def get_type(self, obj):
+        if obj.is_public:
+            return "public"
+        elif obj.is_shared:
+            return "shared"
+        return "private"
+

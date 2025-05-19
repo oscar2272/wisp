@@ -12,8 +12,6 @@ import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import { useToken } from "~/context/token-context";
 import { Alert } from "~/common/components/ui/alert";
-import { LoaderIcon } from "lucide-react";
-import { cn } from "~/lib/utils";
 interface CreateDialogProps {
   type: "note" | "folder";
   parentId: string | null;

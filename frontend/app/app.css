@@ -236,9 +236,27 @@ body {
   .ProseMirror ul[data-type="taskList"] li::before {
     content: none;
   }
-
   .ProseMirror ul[data-type="taskList"] li[data-checked="true"] {
-    @apply text-gray-400 transition-colors;
+    @apply text-gray-400; /* ✅ 필요 시 취소선도 추가 */
+  }
+  .ProseMirror
+    ul[data-type="taskList"]
+    li[data-checked="true"]
+    input[type="checkbox"] {
+    @apply bg-gray-700 border-gray-700;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+  }
+
+  /* ✅ 체크되지 않은 항목은 비워둠 (white 배경 등 기본 스타일 유지) */
+  .ProseMirror
+    ul[data-type="taskList"]
+    li[data-checked="false"]
+    input[type="checkbox"] {
+    @apply bg-white border-gray-300 dark:bg-gray-800 dark:border-gray-600;
+    background-image: none;
   }
 
   .ProseMirror ul[data-type="taskList"] li input[type="checkbox"] {
@@ -247,17 +265,13 @@ body {
            transition-all duration-200 ease-out
            hover:border-gray-400 hover:bg-gray-50
            focus:ring-2 focus:ring-gray-200 focus:ring-offset-0
-           checked:bg-gray-700 checked:border-gray-700
+           checked:border-gray-700
            dark:border-gray-600 dark:checked:bg-gray-500 dark:checked:border-gray-500
            dark:focus:ring-gray-600 dark:hover:border-gray-500;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");
     background-position: center;
     background-repeat: no-repeat;
     background-size: 0;
-  }
-
-  .ProseMirror ul[data-type="taskList"] li input[type="checkbox"]:checked {
-    background-size: 100% 100%;
   }
 
   /* Highlight */

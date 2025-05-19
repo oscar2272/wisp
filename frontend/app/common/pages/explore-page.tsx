@@ -12,43 +12,51 @@ import type { Route } from "./+types/explore-page";
 import { NoteCard } from "~/common/components/note-card";
 import { getNoteList } from "../api";
 import type { NoteList } from "~/features/notes/type";
-import type { JSONContent } from "@tiptap/react";
 // mock loader
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const notes = (await getNoteList()) as NoteList[];
   if (notes.length === 0) {
     return { notes: [] };
   } else {
-    const parsed: JSONContent =
-      typeof notes[0].content === "string"
-        ? JSON.parse(notes[0].content)
-        : notes[0].content;
+    return { notes };
   }
-
-  return { notes };
 };
 
 export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
   const { notes } = loaderData;
+  console.log("explore 프로필", notes[0].author.avatar);
+
   return (
     <div className="flex flex-col w-full py-4">
       <Tabs defaultValue="popular" className="w-full">
         <div className="flex flex-row justify-between items-center w-full">
-          <TabsList className="gap-x-2 items-start">
-            <TabsTrigger value="popular">Popular</TabsTrigger>
-            <TabsTrigger value="newest">Newest</TabsTrigger>
+          <TabsList className="h-9 bg-transparent p-0 gap-x-6">
+            <TabsTrigger
+              value="popular"
+              className="relative px-0 pb-2 h-9 bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-0 data-[state=active]:after:h-[2px] data-[state=active]:after:w-full data-[state=active]:after:bg-primary text-base font-medium"
+              onClick={() => {}}
+            >
+              Popular
+            </TabsTrigger>
+            <TabsTrigger
+              value="newest"
+              className="relative px-0 pb-2 h-9 bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-0 data-[state=active]:after:h-[2px] data-[state=active]:after:w-full data-[state=active]:after:bg-primary text-base font-medium"
+            >
+              Newest
+            </TabsTrigger>
           </TabsList>
           <Form className="flex justify-center items-center gap-2 max-w-screen-sm">
             <Input
               name="query"
               placeholder="Search for public notes"
               className="text-lg"
+              disabled
             />
             <Button type="submit">Search</Button>
           </Form>
         </div>
         {notes.length === 0 ? (
-          <div className="flex justify-center items-center h-full">
+          <div className="flex my-auto mx-auto justify-center items-center h-full">
             <p className="text-2xl font-bold">No notes found</p>
           </div>
         ) : (

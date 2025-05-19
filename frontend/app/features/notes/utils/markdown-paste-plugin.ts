@@ -1,6 +1,5 @@
 import MarkdownIt from "markdown-it";
 import { Plugin, PluginKey } from "prosemirror-state";
-import { Markdown } from "tiptap-markdown";
 import { DOMParser as ProseMirrorDOMParser } from "prosemirror-model";
 
 export function createMarkdownPastePlugin() {

@@ -5,7 +5,6 @@ import {
   CardTitle,
 } from "~/common/components/ui/card";
 import { Link } from "react-router";
-
 export default function Home() {
   return (
     <div className="max-w-3xl mx-auto py-16 px-4">

@@ -30,7 +30,7 @@ import { Button } from "~/common/components/ui/button";
 
 interface ShareDialogProps {
   onSave?: (data: {
-    shareType: "private" | "public" | "shared";
+    shareType: "private" | "public" | "shared" | "expired";
     expiryDate?: Date;
     expiryOption?: "무기한" | "1일" | "7일" | "30일";
   }) => void;
@@ -38,9 +38,9 @@ interface ShareDialogProps {
 
 export function ShareDialog({ onSave }: ShareDialogProps) {
   const [open, setOpen] = useState(false);
-  const [shareType, setShareType] = useState<"private" | "public" | "shared">(
-    "private"
-  );
+  const [shareType, setShareType] = useState<
+    "private" | "public" | "shared" | "expired"
+  >("private");
   const [expiryDate, setExpiryDate] = useState<Date | undefined>(
     DateTime.now().plus({ days: 1 }).toJSDate()
   );
@@ -75,19 +75,25 @@ export function ShareDialog({ onSave }: ShareDialogProps) {
     } else if (expiryTabValue === "options") {
       const now = DateTime.now();
 
-      const optionMap: Record<string, number> = {
-        무기한: 36500, // 예: 100년
+      const optionMap: Record<string, number | null> = {
+        무기한: null,
         "1일": 1,
         "7일": 7,
         "30일": 30,
       };
 
-      const days = optionMap[expiryOption] ?? 0;
-      expiryDateToSend = now.plus({ days }).toISO(); // 현재 시간 기준으로 덧셈
+      const days = optionMap[expiryOption];
+      if (days) {
+        expiryDateToSend = now.plus({ days }).toISO(); // 현재 시간 기준으로 덧셈
+      }
     }
 
     if (shareType !== "private" && expiryDateToSend) {
       formData.append("expiryDate", expiryDateToSend);
+    }
+    // 만료처리 일경우 현재날짜로 추가
+    if (shareType === "expired") {
+      formData.append("expiryDate", DateTime.now().toISO());
     }
     fetcher.submit(formData, {
       action: `/wisp/notes/${params.id}`,
@@ -129,6 +135,7 @@ export function ShareDialog({ onSave }: ShareDialogProps) {
                 <SelectItem value="private">비공개</SelectItem>
                 <SelectItem value="public">공개</SelectItem>
                 <SelectItem value="shared">링크 공유</SelectItem>
+                <SelectItem value="expired">만료 처리</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -197,7 +204,6 @@ export function ShareDialog({ onSave }: ShareDialogProps) {
           </DialogClose>
           <Button
             onClick={() => {
-              console.log("save");
               handleSave();
             }}
           >

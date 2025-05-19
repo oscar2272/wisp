@@ -24,6 +24,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 export default function NavigationLayout({ loaderData }: Route.ComponentProps) {
   const isLoggedIn = !!loaderData && loaderData.userId !== null;
   const profile = loaderData?.profile;
+
   return (
     <>
       <nav className="w-full fixed top-0 left-0 right-0 z-50 backdrop-blur bg-white/70 	shadow-sm">

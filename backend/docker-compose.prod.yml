@@ -10,7 +10,8 @@ services:
     ports:
       - "9000:9000"
     volumes:
-      - static-data:/vol/web
+      - ./data/static:/vol/web/static
+      - ./data/media:/vol/web/media
     environment:
       - DB_HOST=db
       - DB_NAME=${DB_NAME}
@@ -29,16 +30,7 @@ services:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
-  # proxy:
-  #   build:
-  #     context: ./proxy
-  #   restart: always
-  #   depends_on:
-  #     - app
-  #   ports:
-  #     - 80:80
-  #   volumes:
-  #     - static-data:/vol/static
+
 volumes:
   postgres-data:
   static-data:

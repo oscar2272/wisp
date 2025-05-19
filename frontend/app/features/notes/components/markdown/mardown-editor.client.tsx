@@ -16,7 +16,6 @@ import { Markdown } from "tiptap-markdown";
 import TiptapMenuBar from "./mardown-toolbar";
 
 import type { JSONContent } from "@tiptap/core";
-import { CustomMarkdownInputRules } from "../../utils/custom-markdown-input-rules";
 import { createMarkdownPastePlugin } from "../../utils/markdown-paste-plugin";
 
 const lowlight = createLowlight(common);
@@ -37,7 +36,6 @@ export const CustomOrderedList = OrderedList.extend({
 });
 export const CustomBulletList = BulletList.extend({
   addKeyboardShortcuts() {
-    console.log("🔥 CustomBulletList addKeyboardShortcuts");
     return {
       "Mod-l": () => this.editor.commands.toggleBulletList(),
     };
@@ -71,7 +69,6 @@ export default function TiptapMarkdownEditor({
       Underline,
       Highlight,
       Markdown,
-      CustomMarkdownInputRules,
     ],
     content: initialContent,
     editorProps: {
@@ -99,7 +96,6 @@ export default function TiptapMarkdownEditor({
     },
     onCreate({ editor }) {
       editor.registerPlugin(createMarkdownPastePlugin());
-      console.log("📦 Nodes in schema:", editor.schema.nodes);
     },
     onUpdate({ editor }) {
       const html = editor.getHTML();

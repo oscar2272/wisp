@@ -14,6 +14,7 @@ from .views import (
     SlugRetrieveCreateView,
     NoteListView,
     NoteShareRetrieveView,
+    NoteHomeView,
 )
 
 
@@ -33,6 +34,7 @@ urlpatterns = [
     path('folder/<int:pk>/', FolderDeleteView.as_view(), name='folder-delete'),
     path('folder/<int:pk>/rename/', FolderRenameView.as_view(), name='folder-rename'),
 
+    path('home/', NoteHomeView.as_view(), name='note-home'),
     path('note/', NoteCreateView.as_view(), name='note'),
     path('note/<int:pk>/', NoteDeleteView.as_view(), name='note-delete'),
     path('note/<int:pk>/rename/', NoteRenameView.as_view(), name='note-rename'),

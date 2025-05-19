@@ -24,8 +24,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
   const { note } = loaderData;
-  // const avatarUrl = "http://127.0.0.1:8000" + note.author.avatar; //dev
-  const avatarUrl = note.author.avatar; //prod
   const now = DateTime.now();
   const expiresAt = note.expires_at ? DateTime.fromISO(note.expires_at) : null;
   const remainingDays = expiresAt
@@ -44,18 +42,23 @@ export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
           <div className="flex flex-row mt-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <CalendarIcon className="h-4 w-4" />
-
               {formattedDate}
             </div>
 
-            {remainingDays !== null && (
-              <Badge
-                variant="outline"
-                className="ml-2 bg-amber-500/10 text-amber-500 border-amber-500/20"
-              >
-                {remainingDays}일 남음
-              </Badge>
-            )}
+            {expiresAt ? (
+              remainingDays !== null && remainingDays > 0 ? (
+                <Badge
+                  variant="outline"
+                  className="ml-2 bg-amber-500/10 text-amber-500 border-amber-500/20"
+                >
+                  {remainingDays}일 남음
+                </Badge>
+              ) : (
+                <Badge variant="destructive" className="ml-2">
+                  만료됨
+                </Badge>
+              )
+            ) : null}
           </div>
         </div>
 

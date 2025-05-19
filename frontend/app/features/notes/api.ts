@@ -1,9 +1,9 @@
-import { makeSSRClient } from "~/supa-client";
-import { getToken } from "~/features/profiles/api";
 import type { EditNote, Note } from "./type";
 // app/features/profiles/api.ts
-const BASE_URL = "https://www.api-wisp.site";
-
+const BASE_URL = process.env.VITE_API_BASE_URL;
+if (!BASE_URL) {
+  throw new Error("❌ VITE_API_BASE_URL is not defined");
+}
 const USER_API_URL = `${BASE_URL}/api/notes`;
 
 // 노트 사이드바 가져오기
@@ -236,6 +236,18 @@ export async function patchShare(
   });
   if (!res.ok) {
     throw new Error("Failed to patch share");
+  }
+  return res.json();
+}
+
+export async function getNoteHome(token: string, query: string) {
+  const url = new URL(`${USER_API_URL}/home/${query}`);
+  const res = await fetch(url.toString(), {
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to get note list");
   }
   return res.json();
 }

@@ -59,7 +59,7 @@ class Note(models.Model):
     # 보안 옵션
     is_public = models.BooleanField(default=False)
     # 만료 관련
-    expires_at = models.DateTimeField(null=True, blank=True)
+    expires_at = models.DateTimeField(null=True, blank=True, default=None)
 
     # 삭제 관련
     deleted_at = models.DateTimeField(null=True, blank=True)  # soft delete

@@ -1,5 +1,7 @@
-const BASE_URL = "https://www.api-wisp.site";
-
+const BASE_URL = process.env.VITE_API_BASE_URL;
+if (!BASE_URL) {
+  throw new Error("❌ VITE_API_BASE_URL is not defined");
+}
 const USER_API_URL = `${BASE_URL}/api/notes`;
 
 export async function getNoteList() {

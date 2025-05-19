@@ -130,9 +130,7 @@ export default function NoteSidebar({
     };
     setItems((prevItems) => [...prevItems, newItem]);
   };
-  useEffect(() => {
-    console.log("[Dialog open 상태]", createDialogOpen);
-  }, [createDialogOpen]);
+
   return (
     <div>
       <Sidebar collapsible="icon">
@@ -173,7 +171,7 @@ export default function NoteSidebar({
               />
             </div>
 
-            <SidebarGroupContent className="h-[calc(100vh-16rem)] custom-scrollbar">
+            <SidebarGroupContent className="h-[calc(100vh-16rem)] custom-scrollbar overflow-x-scroll">
               <SidebarTreeMenu
                 items={notes}
                 onRename={openRenameDialog}

@@ -23,6 +23,7 @@ from .serializers import (
     NoteDetailShareSerializer,
     NoteListSerializer,
     NoteShareSerializer,
+    NoteHomeSerializer,
 )
 from core.views import SupabaseJWTAuthentication
 from rest_framework import status
@@ -30,7 +31,10 @@ from django.shortcuts import get_object_or_404
 from .models import NoteComment
 from .utils.random_slug import generate_unique_slug
 from django.db.models import Count
-
+from django.utils import timezone
+from .pagination.pagination import NoteHomePagination
+from django.db.models import Q
+from rest_framework.generics import ListAPIView
 
 # 사이드바 전용 뷰
 class TreeItemListRetrieveView(APIView):
@@ -219,8 +223,58 @@ class NoteListView(APIView):
             comments_count=Count("comments", distinct=True),
             likes_count=Count("likes", distinct=True),
         )
-        serializer = NoteListSerializer(notes, many=True)
+        serializer = NoteListSerializer(notes, many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# 노트 홈 페이지 조회(쿼리 파라미터 조건 추가)
+class NoteHomeView(ListAPIView):
+    serializer_class = NoteHomeSerializer
+    authentication_classes = [SupabaseJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    pagination_class = NoteHomePagination  # ← 여기서만 적용
+
+    def get_queryset(self):
+        request = self.request
+        type_param = request.query_params.get("type", "all")
+        status_param = request.query_params.get("status", "all")
+        sort_param = request.query_params.get("sort", "recent")
+        keyword = request.query_params.get("q", "")
+
+        notes = Note.objects.all()
+
+        if keyword:
+            notes = notes.filter(Q(file_name__icontains=keyword))
+
+        notes = notes.annotate(
+            likes_count=Count("likes", distinct=True),
+            comments_count=Count("comments", distinct=True),
+            views_count=Count("views", distinct=True),
+        )
+
+        if type_param == "shared":
+            notes = notes.filter(is_shared=True, is_public=False)
+        elif type_param == "public":
+            notes = notes.filter(is_public=True)
+        elif type_param == "private":
+            notes = notes.filter(is_shared=False)
+
+        if status_param == "is_expired":
+            notes = notes.filter(expires_at__lt=timezone.now())
+        elif status_param == "is_not_expired":
+            notes = notes.filter(expires_at__gte=timezone.now())
+        elif status_param == "null":
+            notes = notes.filter(expires_at__isnull=True)
+
+        order_map = {
+            "recent": "-updated_at",
+            "oldest": "updated_at",
+            "likes": "-likes_count",
+            "comments": "-comments_count",
+            "views": "-views_count",
+        }
+
+        return notes.order_by(order_map.get(sort_param, "-updated_at"))
 
 
 class NoteShareRetrieveView(APIView):
@@ -229,6 +283,6 @@ class NoteShareRetrieveView(APIView):
 
     def get(self, request, pk):
         note = get_object_or_404(Note, id=pk)
-        serializer = NoteShareSerializer(note)
-        print(serializer.data)
+        serializer = NoteShareSerializer(note, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
