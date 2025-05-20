@@ -223,7 +223,7 @@ class NoteListView(APIView):
             comments_count=Count("comments", distinct=True),
             likes_count=Count("likes", distinct=True),
         )
-        serializer = NoteListSerializer(notes, many=True, context={"request": request})
+        serializer = NoteListSerializer(notes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -283,6 +283,6 @@ class NoteShareRetrieveView(APIView):
 
     def get(self, request, pk):
         note = get_object_or_404(Note, id=pk)
-        serializer = NoteShareSerializer(note, context={"request": request})
+        serializer = NoteShareSerializer(note)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

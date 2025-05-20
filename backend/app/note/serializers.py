@@ -116,7 +116,7 @@ class NoteDetailShareSerializer(serializers.ModelSerializer):
 
 # explore 페이지 note list serializer   / author nested serializer
 class NoteListSerializer(serializers.ModelSerializer):
-    author = serializers.SerializerMethodField()
+    author = ProfileSimpleSerializer(source="author.profile", read_only=True)
     seen_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
@@ -135,13 +135,11 @@ class NoteListSerializer(serializers.ModelSerializer):
     def get_likes_count(self, obj):
         return obj.likes.count()
 
-    def get_author(self, obj):
-        return ProfileSimpleSerializer(obj.author.profile, context=self.context).data
 
 
 
 class NoteShareSerializer(serializers.ModelSerializer):
-    author = SerializerMethodField()
+    author = ProfileSimpleSerializer(source="author.profile", read_only=True)
     likes_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
     seen_count = serializers.SerializerMethodField()
@@ -160,8 +158,6 @@ class NoteShareSerializer(serializers.ModelSerializer):
     def get_likes_count(self, obj):
         return obj.likes.count()
 
-    def get_author(self, obj):
-        return ProfileSimpleSerializer(obj.author.profile, context=self.context).data
 
 
 
