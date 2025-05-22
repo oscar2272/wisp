@@ -8,6 +8,9 @@ export default function Home() {
       <p className="text-muted-foreground mb-8">
         Drop secret notes. Share securely. Vanish when viewed.
       </p>
+      <p className="text-muted-foreground mb-8">
+        Cold start로 인해 초기 로딩 시간이 오래 걸릴 수 있습니다.
+      </p>
 
       {/* 개발 로드맵 */}
       <div className="mt-12">
