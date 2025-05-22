@@ -13,10 +13,14 @@ import {
   Heading3,
   Code2,
   CheckSquare,
+  Image,
+  ImagePlus,
+  IceCreamConeIcon,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import type { Level } from "@tiptap/extension-heading";
 import { LinkDialog } from "./link-dialog";
+import { ImageUrlDialog } from "../image-dialog";
 
 type ToolbarButtonProps = {
   onClick: () => void;
@@ -174,7 +178,57 @@ export default function TiptapMenuBar({ editor }: { editor: Editor | null }) {
         >
           <Code2 size={18} />
         </ToolbarButton>
+
         <LinkDialog editor={editor} />
+        <ToolbarButton
+          onClick={() => {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = "image/*";
+            input.onchange = async () => {
+              const file = input.files?.[0];
+              if (!file) return;
+
+              const reader = new FileReader();
+              reader.onload = () => {
+                const base64 = reader.result as string;
+                editor
+                  .chain()
+                  .focus()
+                  .insertContent({
+                    type: "resizableImage",
+                    attrs: {
+                      src: base64,
+                      width: "300px",
+                      height: "auto",
+                    },
+                  })
+                  .run();
+              };
+              reader.readAsDataURL(file);
+            };
+            input.click();
+          }}
+          tooltip="파일 업로드"
+        >
+          <ImagePlus size={18} className="" />
+        </ToolbarButton>
+        <ImageUrlDialog
+          onSubmit={(url) => {
+            editor
+              .chain()
+              .focus()
+              .insertContent({
+                type: "resizableImage",
+                attrs: {
+                  src: url,
+                  width: "300px",
+                  height: "auto",
+                },
+              })
+              .run();
+          }}
+        />
       </div>
     </div>
   );

@@ -20,19 +20,27 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 export default function AuthLayout() {
   const [searchParams, setSearchParams] = useSearchParams();
   const message = searchParams.get("message");
-
   useEffect(() => {
     if (message) {
-      console.log("message in effect:", message);
       toast.info(decodeURIComponent(message), { id: "auth-message" });
       const newParams = new URLSearchParams(searchParams);
       newParams.delete("message");
       setSearchParams(newParams, { replace: true });
     }
   }, [message, searchParams, setSearchParams]);
+
   return (
     <div className="grid grid-cols-2 h-screen">
-      <div className="bg-gradient-to-br from-primary via-black to-primary/50" />
+      <div className="bg-gray-900 flex items-center justify-center text-white px-8">
+        <div className="max-w-xs">
+          <h1 className="text-2xl font-semibold mb-2">Wisp</h1>
+          <p className="text-sm text-gray-300">
+            비밀 링크를 생성해
+            <br />
+            안전하게 메모를 공유하세요.
+          </p>
+        </div>
+      </div>
       <Outlet />
     </div>
   );

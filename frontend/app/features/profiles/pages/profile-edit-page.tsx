@@ -13,7 +13,11 @@ import { useState } from "react";
 import { z } from "zod";
 import type { Route } from "./+types/profile-edit-page";
 import { getToken, updateUserProfile } from "../api";
-import { containsHangulJamo, containsProfanity } from "../utils/name-filter";
+import {
+  containsHangulJamo,
+  containsProfanity,
+  containsAdmin,
+} from "../utils/name-filter";
 const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
 const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
@@ -32,6 +36,9 @@ const formSchema = z.object({
     })
     .refine((val) => !containsProfanity(val), {
       message: "비속어를 포함할 수 없습니다.",
+    })
+    .refine((val) => !containsAdmin(val), {
+      message: "관리자 닉네임은 사용할 수 없습니다.",
     }),
   avatar: z.preprocess(
     (file) => {

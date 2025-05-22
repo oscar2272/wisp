@@ -12,6 +12,9 @@ import { createLowlight, common } from "lowlight";
 import Highlight from "@tiptap/extension-highlight";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
+import { Image } from "@tiptap/extension-image";
+import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node";
+import { ResizableImage } from "../../utils/resizable-image";
 
 const lowlight = createLowlight(common);
 
@@ -38,6 +41,11 @@ export function TiptapReadOnlyViewer({
           link: false, // ✅ 중복 방지
           underline: false, // ✅ 중복 방지
         }),
+        Image.configure({
+          allowBase64: true,
+        }),
+        ImageUploadNode,
+        ResizableImage,
         Heading.configure({ levels: [1, 2, 3, 4, 5, 6] }),
         BulletList,
         OrderedList,

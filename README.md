@@ -1,53 +1,33 @@
-# Wisp
+![Project Structure](https://github.com/user-attachments/assets/d4d761d4-cf74-4fe6-ad90-d611aa5e645b)
 
-> > > > > > > 7261cf1 (add project README.md)
-> > > > > > > A monorepo project combining a Django backend and a Remix frontend, with Supabase-based authentication.
+[official website](https://wisp-three.vercel.app/)
 
-🧱 Project Structure
-/backend/ - Django 5.x API server with Supabase JWT authentication
-/frontend/ - Remix app using Supabase Auth (magic link, OAuth, etc.)
+## 🛠️ Tech Stack
 
-🚀 Getting Started
-Clone the repo
-git clone https://github.com/oscar2272/wisp.git
-cd wisp
+- **Frontend**: Remix(React router v7), React, TailwindCSS, ShadCN/UI
+- **Backend**: Django>5.0,<5.2, djangorestframework==3.15.0,<3.15.2
+- **Auth**: Supabase Auth (email link, GitHub, Kakao)
+- **Database**: PostgreSQL (Docker)
+- **Infra**: Docker, Nginx (prod), AWS EC2 (backend), Vercel (frontend)
 
-Backend
-cd backend
-cp .env.example .env
-docker-compose up --build
+---
 
-Django runs on localhost:8000
+## 🔐 Authentication Flow
 
-PostgreSQL + Supabase JWT middleware included
+- Supabase handles OAuth/email login
+- Supabase JWT is passed to Django
+- Django class custom Authenticate validates JWT and handles user auto-creation
+- User profile is created upon first login
 
-Frontend
-cd frontend
-cp .env.example .env
-npm install
-npm run dev
+---
 
-Remix runs on localhost:3000
+## 📝 Features
 
-🔐 Authentication
-Supabase Auth (email magic link, GitHub, Kakao, etc.)
+- Markdown-based note editor with Tiptap
+- Folder + nested note management (like Obsidian)
+- rash system with restore/delete
+- Private, shared, public note access modes
+- Analytics: seen count, likes, comments
+- Soft delete & auto-expiration logic (30-day retention)
 
-JWT verified by Django middleware
-
-Automatic user/profile creation on login
-
-🧪 Development Flow
-Create a feature branch
-git checkout -b feature/your-feature
-
-Work, then commit
-git add .
-git commit -m "your commit message"
-
-Push and open a Pull Request
-git push origin feature/your-feature
-
-🧼 Branch Strategy
-main: production-ready code (includes both frontend/backend)
-
-feature/\*: for isolated development
+---

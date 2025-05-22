@@ -14,6 +14,9 @@ import { common, createLowlight } from "lowlight";
 import { Markdown } from "tiptap-markdown";
 import TiptapMenuBar from "./mardown-toolbar";
 
+import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node";
+import { Image } from "@tiptap/extension-image";
+import { ResizableImage } from "../../utils/resizable-image";
 import type { JSONContent } from "@tiptap/core";
 import { createMarkdownPastePlugin } from "../../utils/markdown-paste-plugin";
 
@@ -58,6 +61,18 @@ export default function TiptapMarkdownEditor({
         heading: false,
         code: false,
       }),
+      ResizableImage,
+      Image,
+      ImageUploadNode.configure({
+        accept: "image/*",
+        maxSize: 1024 * 1024 * 5, // 5MB
+        limit: 3,
+        upload: async () => {
+          return URL.createObjectURL(
+            new Blob(["https://github.com/shadcn.png"])
+          ); // 임시 blob URL
+        },
+      }),
       Heading.configure({ levels: [1, 2, 3, 4, 5, 6] }),
       BulletList,
       // ListItem,
@@ -75,23 +90,6 @@ export default function TiptapMarkdownEditor({
         class:
           "ProseMirror dark:prose-invert max-w-none py-4 focus:outline-none",
       },
-      // handleKeyDown(view, event) {
-      //   const { state } = view;
-
-      //   // 코드블럭일 경우에만 직접 탭 입력 처리
-      //   const { $from } = state.selection;
-      //   const parentNode = $from.node(-1);
-
-      //   if (event.key === "Tab" && parentNode.type.name === "codeBlock") {
-      //     event.preventDefault();
-      //     const { from, to } = state.selection;
-      //     view.dispatch(state.tr.insertText("    ", from, to));
-      //     return true;
-      //   }
-
-      //   // 그 외에는 TipTap/ProseMirror 기본 처리
-      //   return false;
-      // },
     },
     onCreate({ editor }) {
       editor.registerPlugin(createMarkdownPastePlugin());

@@ -10,3 +10,10 @@ export function containsProfanity(str: string): boolean {
   const lower = str.toLowerCase();
   return bannedWords.some((word) => lower.includes(word));
 }
+
+const adminWords = ["admin", "관리자", "관리", "administator"];
+// 관리자,admin 등 포함된 닉네임 사용 금지
+export function containsAdmin(str: string): boolean {
+  const lower = str.toLowerCase();
+  return adminWords.some((word) => lower.includes(word));
+}
