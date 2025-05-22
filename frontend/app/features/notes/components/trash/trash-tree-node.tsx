@@ -11,41 +11,41 @@ import { TrashContextMenu } from "./trash-context-menu";
 
 interface Props {
   node: TreeNode;
-  onDelete?: (item: TreeNode) => void;
-  onRestore?: (item: TreeNode) => void;
+  // onDelete?: (item: TreeNode) => void;
+  // onRestore?: (item: TreeNode) => void;
 }
 
-export function TrashTreeNode({ node, onDelete, onRestore }: Props) {
+export function TrashTreeNode({ node /* onDelete, onRestore*/ }: Props) {
   const isFolder = node.type === "folder";
   const hasChildren = node.children && node.children.length > 0;
   const [isFolderOpen, setIsFolderOpen] = useState(false);
 
   return (
     <SidebarMenuItem className="group-data-[collapsible=icon]:hidden">
-      <TrashContextMenu item={node} onDelete={onDelete} onRestore={onRestore}>
-        <SidebarMenuButton
-          onClick={() => isFolder && setIsFolderOpen(!isFolderOpen)}
-        >
-          {isFolder ? (
-            <>
-              <FolderIcon className="size-4" />
-              <span>{node.name}</span>
-              {hasChildren && (
-                <ChevronDown
-                  className={`ml-auto h-4 w-4 shrink-0 transition-transform duration-200 ${
-                    isFolderOpen ? "rotate-180" : ""
-                  }`}
-                />
-              )}
-            </>
-          ) : (
-            <>
-              <FileText className="size-4" />
-              <span>{node.name}</span>
-            </>
-          )}
-        </SidebarMenuButton>
-      </TrashContextMenu>
+      {/* <TrashContextMenu item={node} onDelete={onDelete} onRestore={onRestore}> */}
+      <SidebarMenuButton
+        onClick={() => isFolder && setIsFolderOpen(!isFolderOpen)}
+      >
+        {isFolder ? (
+          <>
+            <FolderIcon className="size-4" />
+            <span>{node.name}</span>
+            {hasChildren && (
+              <ChevronDown
+                className={`ml-auto h-4 w-4 shrink-0 transition-transform duration-200 ${
+                  isFolderOpen ? "rotate-180" : ""
+                }`}
+              />
+            )}
+          </>
+        ) : (
+          <>
+            <FileText className="size-4" />
+            <span>{node.name}</span>
+          </>
+        )}
+      </SidebarMenuButton>
+      {/* </TrashContextMenu> */}
 
       {isFolderOpen && hasChildren && (
         <SidebarMenuSub>
@@ -54,8 +54,8 @@ export function TrashTreeNode({ node, onDelete, onRestore }: Props) {
               <TrashTreeNode
                 key={child.id}
                 node={child}
-                onDelete={onDelete}
-                onRestore={onRestore}
+                // onDelete={onDelete}
+                // onRestore={onRestore}
               />
             ))}
           </SidebarMenuSubItem>

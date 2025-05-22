@@ -44,7 +44,7 @@ export async function createFolder(
 }
 
 export async function deleteFolder(id: number, token: string) {
-  const res = await fetch(`${USER_API_URL}/folder/${id}/`, {
+  const res = await fetch(`${USER_API_URL}/folder/${id}/delete/`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -55,6 +55,32 @@ export async function deleteFolder(id: number, token: string) {
   }
   return "success";
 }
+
+export async function deleteFolderAndNote(ids: string[], token: string) {
+  const folderIds = ids
+    .filter((id) => id.startsWith("folder-"))
+    .map((id) => Number(id.replace("folder-", "")));
+
+  const noteIds = ids
+    .filter((id) => id.startsWith("note-"))
+    .map((id) => Number(id.replace("note-", "")));
+
+  const res = await fetch(`${USER_API_URL}/folder/delete/`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ folder_ids: folderIds, note_ids: noteIds }),
+  });
+
+  if (!res.ok) {
+    throw new Error("삭제 실패");
+  }
+
+  return "success";
+}
+
 export async function createNote(
   name: string,
   token: string,
@@ -79,7 +105,7 @@ export async function createNote(
 }
 
 export async function deleteNote(id: number, token: string) {
-  const res = await fetch(`${USER_API_URL}/note/${id}/`, {
+  const res = await fetch(`${USER_API_URL}/${id}/delete/`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -87,6 +113,21 @@ export async function deleteNote(id: number, token: string) {
     throw new Error("Failed to delete note");
   }
   return "success";
+}
+
+export async function deleteNotes(token: string, ids: number[]) {
+  const res = await fetch(`${USER_API_URL}/delete/`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ ids }),
+  });
+
+  if (!res.ok) {
+    throw new Error("삭제 실패");
+  }
 }
 
 export async function renameFolder(id: string, name: string, token: string) {
@@ -126,20 +167,6 @@ export async function getTrash(token: string) {
   });
   if (!res.ok) {
     throw new Error("Failed to get trash");
-  }
-  return res.json();
-}
-
-export async function permanentlyDeleteByParentId(
-  parentId: string,
-  token: string
-) {
-  const res = await fetch(`${USER_API_URL}/trash/${parentId}/`, {
-    method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) {
-    throw new Error("Failed to permanently delete by parent id");
   }
   return res.json();
 }
@@ -248,6 +275,27 @@ export async function getNoteHome(token: string, query: string) {
   });
   if (!res.ok) {
     throw new Error("Failed to get note list");
+  }
+  return res.json();
+}
+
+export async function emptyTrash(token: string) {
+  const res = await fetch(`${USER_API_URL}/trash/delete/`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to empty trash");
+  }
+}
+
+export async function restoreTrash(token: string) {
+  const res = await fetch(`${USER_API_URL}/trash/restore/`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to restore trash");
   }
   return res.json();
 }

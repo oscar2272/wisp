@@ -1,9 +1,3 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "~/common/components/ui/card";
 import { Link } from "react-router";
 export default function Home() {
   return (
@@ -20,35 +14,6 @@ export default function Home() {
         <h2 className="text-xl font-semibold mb-6">🚀 개발 로드맵</h2>
 
         <div className="space-y-8">
-          {/* 진행 중인 개발 */}
-          <div>
-            <h3 className="text-lg font-medium mb-3">📆 단기 계획 (~5월 말)</h3>
-            <div className="space-y-4 text-sm">
-              <div>
-                <p className="text-muted-foreground mb-2">~ 5월 20일 예정</p>
-                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li>탐색 페이지 검색 및 필터링 기능 추가</li>
-                  <li>
-                    노트 상세 페이지 UI 개선 (레이아웃 정리, 배지 위치 변경 등)
-                  </li>
-                  <li>휴지통 기능: 삭제/복원 API 및 프론트 구현</li>
-                  <li>/notes 페이지 백엔드 연동 및 리스트 노출</li>
-                  <li>링크용 페이지 추가 (노트 상세 페이지로 이동)</li>
-                </ul>
-              </div>
-              <div>
-                <p className="text-muted-foreground mb-2">~ 5월 25일 예정</p>
-                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li>만료된 노트 처리 방식 결정 및 구현 (백엔드 처리 여부)</li>
-                  <li>
-                    이미지 업로드: multipart/form-data 처리 및 썸네일 자동 등록
-                  </li>
-                  <li>서버 인프라 구성 (Nginx ↔ Docker 설정)</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
           {/* 예정된 기능 */}
           <div>
             <h3 className="text-lg font-medium mb-3">📌 예정된 기능</h3>
@@ -75,14 +40,14 @@ export default function Home() {
       </div>
 
       {/* 최근 메모 카드 (더미) */}
-      <Card className="my-4">
+      {/* <Card className="my-4">
         <CardHeader>
           <CardTitle>최근 작성한 메모</CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
           아직 작성한 메모가 없습니다.
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* 안내 영역 */}
       <p className="text-sm text-gray-500 mt-12 text-center">

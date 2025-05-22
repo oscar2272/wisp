@@ -1,5 +1,4 @@
 // app/components/markdown/mardown-editor.client.tsx
-"use client";
 
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";

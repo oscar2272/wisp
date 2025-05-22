@@ -69,12 +69,6 @@ class Note(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # class Meta:
-    #     indexes = [
-    #         models.Index(fields=["expires_at"]),
-    #         models.Index(fields=["is_shared", "expires_at"]),
-    #     ]
-
     def has_expired(self):
         return (
             self.expires_at and timezone.now() > self.expires_at

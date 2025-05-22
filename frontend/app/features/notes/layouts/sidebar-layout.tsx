@@ -9,8 +9,6 @@ import { getToken } from "~/features/profiles/api";
 import type { TreeItem } from "../type";
 import { getNotesSidebar, getTrash } from "../api";
 import { TokenContext } from "~/context/token-context";
-import { Toaster } from "sonner";
-
 export const loader = async ({ request }: Route.LoaderArgs) => {
   // 테스트를 위한 3초 지연
   //await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -22,13 +20,15 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const userId = await getLoggedInUserId(client);
   const token = await getToken(request);
   if (!userId) {
-    //로그인 하지않은상태에서는 /wisp/notes 로 시작하는페이지에 접근하면 로그인 페이지로 리다이렉트
+    //로그인 하지않은상태에서는 /wisp/notes 로 시작하는페이지에 접근하면 로그인
+    const message = encodeURIComponent("로그인이 필요합니다.");
     if (pathname.startsWith("/wisp/notes")) {
-      return redirect("/auth/login");
+      return redirect(`/auth/login?message=${message}`);
     }
   } else if (userId) {
     if (!token) {
-      return redirect("/auth/login");
+      const message = encodeURIComponent("토큰이 필요합니다.");
+      return redirect(`/auth/login?message=${message}`);
     } else {
       const [profile, initialItems, trash] = await Promise.all([
         getUserProfileWithEmail(token),
@@ -45,10 +45,8 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
   const initialItems = loaderData?.initialItems;
   const token = loaderData?.token;
   const trash = loaderData?.trash;
-
   return (
     <TokenContext.Provider value={token!}>
-      <Toaster richColors position="top-center" />
       <SidebarProvider>
         <NoteSidebar
           email={profile!.email}

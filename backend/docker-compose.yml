@@ -26,6 +26,7 @@ services:
       - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
       - DEBUG=1
       - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
+      - FRONTEND_BASE_URL=${FRONTEND_BASE_URL}
 
     depends_on:
       - db

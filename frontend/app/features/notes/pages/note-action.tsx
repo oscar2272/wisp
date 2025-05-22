@@ -3,6 +3,7 @@ import {
   createFolder,
   createNote,
   deleteFolder,
+  deleteFolderAndNote,
   deleteNote,
   renameFolder,
   renameNote,
@@ -13,6 +14,7 @@ import {
   containsHangulJamo,
   containsProfanity,
 } from "~/features/profiles/utils/name-filter";
+import { getToken } from "~/features/profiles/api";
 const formSchema = z.object({
   name: z
     .string()
@@ -31,6 +33,7 @@ const formSchema = z.object({
 });
 
 export async function action({ request }: Route.ActionArgs) {
+  const actionToken = await getToken(request);
   const formData = await request.formData();
   const { data, success, error } = formSchema.safeParse(
     Object.fromEntries(formData)
@@ -38,20 +41,24 @@ export async function action({ request }: Route.ActionArgs) {
   if (!success) {
     return { fieldErrors: error.flatten().fieldErrors };
   }
-  const token = formData.get("token") as string;
-  if (!token) throw new Error("Unauthorized");
   if (request.method === "DELETE") {
-    const id = formData.get("id")?.toString();
-    if (id?.startsWith("folder-")) {
-      const rawId = id.replace("folder-", "").replace("note-", "");
-      await deleteFolder(Number(rawId), token);
-      return new Response(JSON.stringify({ success: true, id }), {
+    const ids = formData.get("ids")?.toString();
+    const idsArray: string[] = JSON.parse(ids!);
+    if (idsArray && idsArray.length > 1) {
+      await deleteFolderAndNote(idsArray, actionToken!);
+      return new Response(JSON.stringify({ success: true }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
-    } else if (id?.startsWith("note-")) {
-      const rawId = id.replace("folder-", "").replace("note-", "");
-      await deleteNote(Number(rawId), token);
+    } else if (idsArray && idsArray.length == 1) {
+      const id = idsArray[0];
+      // 단일 삭제
+      const rawId = id?.replace("folder-", "").replace("note-", "");
+      if (id?.startsWith("folder-")) {
+        await deleteFolder(Number(rawId), actionToken!);
+      } else if (id?.startsWith("note-")) {
+        await deleteNote(Number(rawId), actionToken!);
+      }
 
       return new Response(JSON.stringify({ success: true, id }), {
         status: 200,
@@ -68,7 +75,7 @@ export async function action({ request }: Route.ActionArgs) {
     if (type === "folder") {
       const response = await createFolder(
         name as string,
-        token,
+        actionToken!,
         parentId as string
       );
       return new Response(
@@ -89,7 +96,7 @@ export async function action({ request }: Route.ActionArgs) {
     } else if (type === "note") {
       const response = await createNote(
         name as string,
-        token,
+        actionToken!,
         parentId as string
       );
       return new Response(
@@ -112,13 +119,12 @@ export async function action({ request }: Route.ActionArgs) {
   if (request.method === "PATCH") {
     const name = formData.get("name");
     const id = formData.get("id");
-    const token = formData.get("token");
     const rawId = id?.toString().replace("folder-", "").replace("note-", "");
     if (id?.toString().startsWith("folder-")) {
       const response = await renameFolder(
         rawId as string,
         name as string,
-        token as string
+        actionToken!
       );
       return new Response(
         JSON.stringify({
@@ -137,7 +143,7 @@ export async function action({ request }: Route.ActionArgs) {
       const response = await renameNote(
         rawId as string,
         name as string,
-        token as string
+        actionToken!
       );
       return new Response(
         JSON.stringify({

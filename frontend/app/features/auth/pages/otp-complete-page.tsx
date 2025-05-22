@@ -1,4 +1,4 @@
-import { ArrowLeft, HomeIcon, LoaderCircle } from "lucide-react";
+import { ArrowLeft, LoaderCircle } from "lucide-react";
 import type { Route } from "./+types/otp-complete-page";
 import {
   Form,

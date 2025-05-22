@@ -34,15 +34,6 @@ export function DeleteDialog({
   const handleDelete = () => {
     if (!item) return;
 
-    fetcher.submit(
-      { token, id: item.id },
-      {
-        method: "delete",
-        action: "/api/notes-action",
-        encType: "application/x-www-form-urlencoded",
-      }
-    );
-
     onDelete(item);
     onOpenChange(false);
   };

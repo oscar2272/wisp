@@ -22,6 +22,7 @@ export type Note = {
   created_at: string;
   updated_at: string;
   comments_count: number;
+  is_deleted: boolean;
 };
 
 export type SharedNote = {
@@ -58,4 +59,27 @@ export type NoteList = {
   comments_count: number;
   updated_at: string;
   expires_at: string | null;
+};
+
+export type NotesContext = {
+  profile: any;
+  trash: TreeItem[];
+  items: TreeItem[];
+  setItems: React.Dispatch<React.SetStateAction<TreeItem[]>>;
+  token: string;
+};
+
+export type LinkNote = {
+  id: string;
+  slug: string;
+
+  author: {
+    name: string;
+    avatar: string;
+  };
+  title: string;
+  content: JSONContent;
+  updated_at: string;
+  expires_at: string | null;
+  is_deleted: boolean;
 };

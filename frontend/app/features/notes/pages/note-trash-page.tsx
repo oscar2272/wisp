@@ -1,4 +1,10 @@
-import { Link, useOutletContext } from "react-router";
+import {
+  Link,
+  redirect,
+  useFetcher,
+  useOutletContext,
+  useRevalidator,
+} from "react-router";
 import type { TreeItem } from "../type";
 import { TrashTreeMenu } from "../components/trash/trash-tree-menu";
 import { Button } from "~/common/components/ui/button";
@@ -11,21 +17,51 @@ import {
   CardTitle,
 } from "~/common/components/ui/card";
 import { Alert, AlertDescription } from "~/common/components/ui/alert";
+import type { Route } from "./+types/note-trash-page";
+import { emptyTrash, restoreTrash } from "../api";
+import { getToken } from "~/features/profiles/api";
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const token = await getToken(request);
+  if (!token) {
+    return redirect("/auth/login");
+  }
+};
+export async function action({ request }: Route.ActionArgs) {
+  const token = await getToken(request);
+  if (!token) {
+    return { error: "Unauthorized" };
+  }
+  if (request.method === "DELETE") {
+    await emptyTrash(token!);
+  }
+  if (request.method === "PATCH") {
+    const res = await restoreTrash(token!);
+  }
+}
 
 export default function NoteTrashPage() {
+  const { revalidate } = useRevalidator();
+  const fetcher = useFetcher();
   const { trash } = useOutletContext() as {
     trash: TreeItem[];
   };
-  const handleDelete = (trash: TreeItem) => {
-    console.log("trash", trash);
+
+  const handleRestoreAll = () => {
+    fetcher.submit(
+      { action: "restore_all" },
+      {
+        method: "patch",
+      }
+    );
+    setTimeout(() => {
+      revalidate();
+    }, 500);
   };
   const handleEmptyTrash = () => {
-    console.log("empty trash");
+    fetcher.submit({ action: "empty_trash" }, { method: "delete" });
   };
-  const handleRestore = (trash: TreeItem) => {
-    console.log("restore", trash);
-  };
-
+  const handleDelete = (trash: TreeItem) => {};
+  const handleRestore = (trash: TreeItem) => {};
   return (
     <div className="max-w-5xl mx-auto p-8 space-y-6">
       {/* 헤더 */}
@@ -37,11 +73,9 @@ export default function NoteTrashPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" asChild>
-            <Link to="/wisp/notes">
-              <ArchiveRestore className="size-4 mr-2" />
-              복원하기
-            </Link>
+          <Button variant="outline" onClick={() => handleRestoreAll()}>
+            <ArchiveRestore className="size-4 mr-2" />
+            복원하기
           </Button>
           <Button variant="destructive" onClick={handleEmptyTrash}>
             <Trash2 className="size-4 mr-2" />
@@ -68,12 +102,12 @@ export default function NoteTrashPage() {
               : "휴지통이 비어있습니다"}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="h-96 overflow-y-scroll custom-scrollbar">
           {trash.length > 0 ? (
             <TrashTreeMenu
               items={trash}
-              onDelete={handleDelete}
-              onRestore={handleRestore}
+              //onDelete={handleDelete}
+              //onRestore={handleRestore}
             />
           ) : (
             <div className="text-center py-8 text-muted-foreground">

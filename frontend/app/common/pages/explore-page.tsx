@@ -24,7 +24,6 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
 export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
   const { notes } = loaderData;
-  console.log("explore 프로필", notes[0].author.avatar);
 
   return (
     <div className="flex flex-col w-full py-4">
@@ -56,9 +55,9 @@ export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
           </Form>
         </div>
         {notes.length === 0 ? (
-          <div className="flex my-auto mx-auto justify-center items-center h-full">
-            <p className="text-2xl font-bold">No notes found</p>
-          </div>
+          <h1 className="flex justify-center items-center h-48">
+            No notes found
+          </h1>
         ) : (
           <>
             <TabsContent value="popular">

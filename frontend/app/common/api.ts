@@ -24,3 +24,13 @@ export async function getSharedNote(id: string) {
 
   return response.json();
 }
+
+export async function getLinkNote(slug: string) {
+  const response = await fetch(`${USER_API_URL}/link/${slug}/`, {
+    method: "GET",
+  });
+  if (!response.ok) {
+    throw new Error("Failed to get link note");
+  }
+  return response.json();
+}

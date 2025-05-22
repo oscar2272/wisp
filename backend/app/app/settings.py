@@ -16,14 +16,14 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 SUPABASE_JWT_SECRET = os.environ.get('SUPABASE_JWT_SECRET')
-
+FRONTEND_BASE_URL = os.environ.get('FRONTEND_BASE_URL')
+print("settings.py:FRONTEND_BASE_URL",FRONTEND_BASE_URL)
 #eg) DEBUG=1 -> DEBUG = True
 #eg) DEBUG=0 -> DEBUG = False
 DEBUG = bool(int(os.environ.get('DEBUG', 0)))

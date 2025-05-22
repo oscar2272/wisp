@@ -1,7 +1,9 @@
-import { Outlet, redirect } from "react-router";
+import { Outlet, redirect, useSearchParams } from "react-router";
 import { makeSSRClient } from "~/supa-client";
 import type { Route } from "./+types/auth-layout";
 import { getLoggedInUserId } from "~/features/profiles/queries";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { client } = makeSSRClient(request);
@@ -16,6 +18,18 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 };
 
 export default function AuthLayout() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const message = searchParams.get("message");
+
+  useEffect(() => {
+    if (message) {
+      console.log("message in effect:", message);
+      toast.info(decodeURIComponent(message), { id: "auth-message" });
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("message");
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [message, searchParams, setSearchParams]);
   return (
     <div className="grid grid-cols-2 h-screen">
       <div className="bg-gradient-to-br from-primary via-black to-primary/50" />

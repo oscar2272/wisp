@@ -77,6 +77,7 @@
     "markdown-it-task-lists": "^2.1.1",
     "marked": "^15.0.11",
     "motion": "^12.9.5",
+    "next-themes": "^0.4.6",
     "prosemirror-markdown": "^1.13.2",
     "prosemirror-model": "^1.25.1",
     "prosemirror-schema-basic": "^1.2.4",

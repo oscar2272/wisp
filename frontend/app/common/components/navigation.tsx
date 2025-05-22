@@ -27,6 +27,7 @@ import {
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { cn } from "~/lib/utils";
+import { toast } from "sonner";
 
 const menus = [
   {
@@ -35,22 +36,21 @@ const menus = [
   },
   {
     name: "Explore",
-    to: "/wisp/explore",
+    to: "/wisp/explore/",
   },
   {
     name: "About",
-    to: "/wisp/about",
     items: [
       {
         name: "Creators",
         description: "만든 사람 소개",
         to: "/wisp/about/creators",
       },
-      {
-        name: "Contact us",
-        description: "문의하기",
-        to: "/wisp/about/contact",
-      },
+      // {
+      //   name: "Contact us",
+      //   description: "문의하기",
+      //   to: "#",
+      // },
     ],
   },
 ];
@@ -71,11 +71,11 @@ export default function Navigation({
   return (
     <div className="xl:px-32 lg:px-24 md:px-16 px-8 flex flex-row h-16 justify-between">
       <div className=" items-center flex">
-        <Link
-          to="/"
-          className="font-bold text-lg tracking-tighter md:block hidden mr-20"
-        >
-          Wisp
+        <Link to="/" className="flex items-center mr-16">
+          <img src="/logo.png" alt="Wisp Logo" className="h-12 w-auto" />
+          <span className="text-[20px] font-bold tracking-[-0.02em] text-zinc-900 dark:text-white leading-tight hidden md:block">
+            Wisp
+          </span>
         </Link>
         <NavigationMenu viewport={false}>
           <NavigationMenuList>
@@ -95,7 +95,8 @@ export default function Navigation({
                                 to={item.to}
                                 className={cn(
                                   "flex flex-col gap-1 p-2 hover:bg-accent rounded-md",
-                                  location.pathname === item.to && "bg-accent"
+                                  location.pathname.startsWith(item.to) &&
+                                    "bg-accent"
                                 )}
                               >
                                 <div className="text-sm font-medium">
@@ -117,7 +118,7 @@ export default function Navigation({
                   <Link
                     className={cn(
                       navigationMenuTriggerStyle(),
-                      location.pathname === menu.to && "bg-accent"
+                      location.pathname.startsWith(menu.to) && "bg-accent"
                     )}
                     to={menu.to}
                   >
@@ -132,7 +133,7 @@ export default function Navigation({
       {isLoggedIn ? (
         <div className="flex items-center gap-4">
           <Button size="icon" variant="ghost" asChild className="relative">
-            <Link to="/my/notifications">
+            <Link to="#" onClick={() => toast.info("준비중입니다.")}>
               <BellIcon className="size-4" />
               {hasNotifications && (
                 <div className="absolute top-1.5 right-1.5 size-2 bg-red-500 rounded-full" />
@@ -162,24 +163,24 @@ export default function Navigation({
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem asChild className="cursor-pointer">
+                {/* <DropdownMenuItem asChild className="cursor-pointer">
                   <Link to="/my/dashboard">
                     <BarChart3Icon className="size-4 mr-2" />
                     Dashboard
                   </Link>
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                 <DropdownMenuItem asChild className="cursor-pointer">
                   <Link to="/wisp/profile">
                     <UserIcon className="size-4 mr-2" />
                     Profile
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer">
+                {/* <DropdownMenuItem asChild className="cursor-pointer">
                   <Link to="/my/settings">
                     <SettingsIcon className="size-4 mr-2" />
                     Settings
                   </Link>
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild className="cursor-pointer">

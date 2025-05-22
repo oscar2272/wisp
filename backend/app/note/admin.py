@@ -51,7 +51,7 @@ class NoteAdmin(admin.ModelAdmin):
 
 @admin.register(Folder)
 class FolderAdmin(admin.ModelAdmin):
-    list_display = ("id", "file_name", "parent_id", "owner")
+    list_display = ("id", "file_name", "parent_id", "owner", "is_deleted", "deleted_at")
     search_fields = ("file_name",)
     readonly_fields = ("owner",)
     ordering = ("-created_at",)

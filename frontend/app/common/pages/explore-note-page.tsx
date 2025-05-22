@@ -26,12 +26,33 @@ export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
   const { note } = loaderData;
   const now = DateTime.now();
   const expiresAt = note.expires_at ? DateTime.fromISO(note.expires_at) : null;
-  const remainingDays = expiresAt
-    ? Math.floor(expiresAt.diff(now, "days").days)
-    : null;
+
+  const getRemainingTime = () => {
+    if (!expiresAt) return null;
+
+    const diff = expiresAt
+      .diff(now, ["hours", "minutes", "seconds"])
+      .toObject();
+    const hours = Math.floor(diff.hours || 0);
+    const minutes = Math.floor(diff.minutes || 0);
+    const seconds = Math.floor(diff.seconds || 0);
+
+    if (hours > 0) {
+      return `${hours}시간 ${minutes}분 남음`;
+    } else if (minutes > 0) {
+      return `${minutes}분 ${seconds}초 남음`;
+    } else if (seconds > 0) {
+      return `${seconds}초 남음`;
+    }
+    return null;
+  };
+
+  const remainingTime = getRemainingTime();
   const formattedDate = DateTime.fromISO(note.updated_at).toFormat(
     "yyyy.MM.dd"
   );
+
+  const isExpired = expiresAt && expiresAt < now;
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-8">
@@ -46,12 +67,12 @@ export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
             </div>
 
             {expiresAt ? (
-              remainingDays !== null && remainingDays > 0 ? (
+              !isExpired ? (
                 <Badge
                   variant="outline"
                   className="ml-2 bg-amber-500/10 text-amber-500 border-amber-500/20"
                 >
-                  {remainingDays}일 남음
+                  {remainingTime}
                 </Badge>
               ) : (
                 <Badge variant="destructive" className="ml-2">
@@ -105,10 +126,17 @@ export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
 
         <Separator />
       </div>
-
-      <div className="prose dark:prose-invert max-w-none">
-        <TiptapReadOnlyViewer content={note.content} />
-      </div>
+      {!isExpired ? (
+        <div className="prose dark:prose-invert max-w-none">
+          <TiptapReadOnlyViewer content={note.content} />
+        </div>
+      ) : (
+        <div className="prose dark:prose-invert max-w-none">
+          <h1 className="text-center text-xl font-bold my-auto mt-12">
+            {note.content}
+          </h1>
+        </div>
+      )}
 
       {/* 하단 네비게이션 */}
       <div className="mt-12 pt-6 border-t border-border">

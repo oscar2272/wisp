@@ -10,7 +10,7 @@ import {
   SidebarFooter,
   SidebarRail,
 } from "~/common/components/ui/sidebar";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useFetcher, useNavigate, useParams } from "react-router";
 import { Home, Trash2, Settings, Archive } from "lucide-react";
 import UserPopOverMenu from "./user-popover";
 import { useEffect, useState } from "react";
@@ -21,6 +21,8 @@ import { CreateDialog } from "./create-dialog";
 import { DeleteDialog } from "./delete-dialog";
 import { NotePopover } from "./note-popover";
 import { toast } from "sonner";
+import { useToken } from "~/context/token-context";
+import { Button } from "~/common/components/ui/button";
 export default function NoteSidebar({
   email,
   username,
@@ -35,7 +37,6 @@ export default function NoteSidebar({
   const notes = initialItems;
   const params = useParams();
   const navigate = useNavigate();
-  const currentNoteId = params.id;
   const [items, setItems] = useState(notes);
 
   const [deleteDialogState, setDeleteDialogState] = useState<TreeItem | null>(
@@ -53,7 +54,10 @@ export default function NoteSidebar({
     null
   );
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
-
+  const fetcher = useFetcher();
+  useEffect(() => {
+    setItems(initialItems);
+  }, [initialItems]);
   const openRenameDialog = (item: TreeItem) => {
     setRenameDialogItem(item);
     setRenameDialogOpen(true);
@@ -75,33 +79,46 @@ export default function NoteSidebar({
   };
 
   const handleDeleteSubmit = (item: TreeItem) => {
-    let isCurrentNoteDeleted = false;
-    setItems((prevItems) => {
-      const itemsToDelete = new Set([item.id]);
+    const isCurrentNoteDelete = params.id === item.id;
+    const getAllDescendantIds = (root: TreeItem, all: TreeItem[]) => {
+      const result = new Set<string>();
+      const stack = [root];
 
-      // 폴더인 경우 하위 항목도 모두 삭제
-      if (item.type === "folder") {
-        const findChildren = (parentId: string) => {
-          prevItems.forEach((i) => {
-            if (i.parentId === parentId) {
-              itemsToDelete.add(i.id);
-              if (i.type === "folder") {
-                findChildren(i.id);
-              }
-            }
-          });
-        };
-        findChildren(item.id);
-      }
-      if (currentNoteId) {
-        isCurrentNoteDeleted =
-          itemsToDelete.has(currentNoteId) ||
-          itemsToDelete.has(`note-${currentNoteId}`);
+      while (stack.length > 0) {
+        const current = stack.pop();
+        if (!current) continue;
+
+        result.add(current.id);
+        const children = all.filter((i) => i.parentId === current.id);
+        children.forEach((child) => stack.push(child));
       }
 
-      return prevItems.filter((i) => !itemsToDelete.has(i.id));
+      return result;
+    };
+
+    const itemsToDelete = getAllDescendantIds(item, items);
+
+    const folderIds = Array.from(itemsToDelete).filter((id) =>
+      id.startsWith("folder-")
+    );
+    const noteIds = Array.from(itemsToDelete).filter((id) =>
+      id.startsWith("note-")
+    );
+
+    const ids = [...folderIds, ...noteIds];
+
+    const formData: Record<string, string> = {
+      id: item.id,
+      ids: JSON.stringify(ids),
+    };
+    fetcher.submit(formData, {
+      method: "delete",
+      action: "/api/notes-action",
+      encType: "application/x-www-form-urlencoded",
     });
-    if (isCurrentNoteDeleted) {
+    setItems((prev) => prev.filter((i) => !itemsToDelete.has(i.id)));
+
+    if (isCurrentNoteDelete) {
       toast.info("현재 보고 있는 노트가 삭제되어 목록 페이지로 이동합니다.");
       navigate("/wisp/notes", { replace: true });
     }
@@ -198,7 +215,7 @@ export default function NoteSidebar({
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <Link to="/trash">
+                    <Link to="#" onClick={() => toast.info("준비중입니다.")}>
                       <Settings className="size-4" />
                       <span>Settings</span>
                     </Link>

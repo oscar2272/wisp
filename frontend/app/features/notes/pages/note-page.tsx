@@ -44,7 +44,7 @@ export async function action({ request, params }: Route.ActionArgs) {
       const rawId = id!.toString().replace("note-", "");
       await deleteNote(Number(rawId), token);
 
-      return redirect("/wisp/profile");
+      return redirect("/wisp/notes");
     } catch (err) {
       console.error("삭제 실패", err);
       return new Response(
@@ -184,7 +184,7 @@ export default function NotePage({ loaderData }: Route.ComponentProps) {
                       <ClockIcon className="h-4 w-4" />
                       만료:{" "}
                       {DateTime.fromISO(note!.expires_at).toFormat(
-                        "yyyy.MM.dd"
+                        "yyyy.MM.dd HH:mm"
                       )}
                     </div>
                   </>
@@ -193,92 +193,96 @@ export default function NotePage({ loaderData }: Route.ComponentProps) {
             </div>
 
             {/* 주요 액션 버튼 그룹 */}
-            <div className="flex items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <ShareIcon className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  {note!.slug && (
+            {note!.is_deleted ? (
+              <div className="flex items-center gap-2"></div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <ShareIcon className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    {note!.slug && (
+                      <DropdownMenuItem asChild>
+                        <Button
+                          variant="ghost"
+                          className="flex flex-row justify-start w-full items-center gap-2"
+                          onClick={() => {
+                            navigator.clipboard.writeText(`${url}`);
+                            toast.success("개인 링크가 복사되었습니다.");
+                          }}
+                        >
+                          <LinkIcon className="mr-2 h-4 w-4" />
+                          링크 복사
+                        </Button>
+                      </DropdownMenuItem>
+                    )}
+
                     <DropdownMenuItem asChild>
                       <Button
                         variant="ghost"
                         className="flex flex-row justify-start w-full items-center gap-2"
                         onClick={() => {
-                          navigator.clipboard.writeText(`${url}`);
-                          toast.success("개인 링크가 복사되었습니다.");
+                          fetcher.submit(null, { method: "POST" });
+                          toast.success("개인 링크가 생성되었습니다.");
                         }}
                       >
                         <LinkIcon className="mr-2 h-4 w-4" />
-                        링크 복사
+                        링크 생성
                       </Button>
                     </DropdownMenuItem>
-                  )}
 
-                  <DropdownMenuItem asChild>
-                    <Button
-                      variant="ghost"
-                      className="flex flex-row justify-start w-full items-center gap-2"
-                      onClick={() => {
-                        fetcher.submit(null, { method: "POST" });
-                        toast.success("개인 링크가 생성되었습니다.");
-                      }}
-                    >
-                      <LinkIcon className="mr-2 h-4 w-4" />
-                      링크 생성
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <ShareDialog />
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <MoreVerticalIcon className="h-4 w-4" />
                     </Button>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <ShareDialog />
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <MoreVerticalIcon className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem asChild>
-                    <Button
-                      asChild
-                      variant="ghost"
-                      className="flex flex-row justify-start w-full items-center gap-2"
-                    >
-                      <Link
-                        to={`/wisp/notes/${params.id}/edit`}
-                        className="flex items-center gap-2 pl-3"
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Button
+                        asChild
+                        variant="ghost"
+                        className="flex flex-row justify-start w-full items-center gap-2"
                       >
-                        <PencilIcon className="mr-2 h-4 w-4" />
-                        수정
-                      </Link>
-                    </Button>
-                  </DropdownMenuItem>
+                        <Link
+                          to={`/wisp/notes/${params.id}/edit`}
+                          className="flex items-center gap-2 pl-3"
+                        >
+                          <PencilIcon className="mr-2 h-4 w-4" />
+                          수정
+                        </Link>
+                      </Button>
+                    </DropdownMenuItem>
 
-                  <DropdownMenuItem asChild>
-                    <Button
-                      variant="ghost"
-                      className="flex flex-row justify-start w-full items-center gap-2"
-                      onClick={() => {
-                        fetcher.submit(
-                          { id: params!.id! },
-                          { method: "delete" }
-                        );
-                      }}
-                    >
-                      <TrashIcon className="mr-2 h-4 w-4" />
-                      삭제
-                    </Button>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+                    <DropdownMenuItem asChild>
+                      <Button
+                        variant="ghost"
+                        className="flex flex-row justify-start w-full items-center gap-2"
+                        onClick={() => {
+                          fetcher.submit(
+                            { id: params!.id! },
+                            { method: "delete" }
+                          );
+                        }}
+                      >
+                        <TrashIcon className="mr-2 h-4 w-4" />
+                        삭제
+                      </Button>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
           </div>
 
           {/* 상태 뱃지 및 통계 */}
@@ -286,6 +290,12 @@ export default function NotePage({ loaderData }: Route.ComponentProps) {
             <Badge variant={statusBadge!.variant}>{statusBadge!.label}</Badge>
             {expiryBadge && (
               <Badge variant={expiryBadge.variant}>{expiryBadge.label}</Badge>
+            )}
+            {note!.is_deleted && (
+              <Badge variant="destructive">
+                <TrashIcon className="size-3" />
+                삭제됨
+              </Badge>
             )}
             <div className="flex items-center gap-3">
               <Badge variant="secondary" className="flex gap-1 items-center">

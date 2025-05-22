@@ -12,10 +12,12 @@ export default [
     ...prefix("/wisp", [
       route("/explore", "common/pages/explore-page.tsx"),
       route("/explore/:id", "common/pages/explore-note-page.tsx"),
+      route("/about/creators", "common/pages/creator-page.tsx"),
     ]),
   ]),
   layout("features/notes/layouts/sidebar-layout.tsx", [
     route("/api/notes-action", "features/notes/pages/note-action.tsx"),
+    route("/api/notes-trash-action", "features/notes/pages/trash-action.tsx"),
     route("/wisp/notes", "features/notes/pages/note-home-page.tsx"),
     route("/wisp/notes/trash", "features/notes/pages/note-trash-page.tsx"),
     route("/wisp/notes/:id/edit", "features/notes/pages/note-edit-page.tsx"),
@@ -44,4 +46,6 @@ export default [
       ]),
     ]),
   ]),
+  route("/link/:id", "common/pages/link-page.tsx"),
+  route("/expired", "common/pages/expired-page.tsx"),
 ] satisfies RouteConfig;

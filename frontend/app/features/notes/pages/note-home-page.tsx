@@ -15,10 +15,10 @@ import {
   SelectItem,
 } from "~/common/components/ui/select";
 import { Input } from "~/common/components/ui/input";
-import { Link, useSearchParams } from "react-router";
+import { Link, useFetcher, useSearchParams } from "react-router";
 import type { Route } from "./+types/note-home-page";
 import { getToken } from "~/features/profiles/api";
-import { getNoteHome } from "../api";
+import { deleteNotes, getNoteHome } from "../api";
 import { DateTime } from "luxon";
 import { useState } from "react";
 import {
@@ -29,6 +29,9 @@ import {
   PaginationNext,
   PaginationLink,
 } from "~/common/components/ui/pagination";
+import { Checkbox } from "~/common/components/ui/checkbox";
+import { Button } from "~/common/components/ui/button";
+import { toast } from "sonner";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const token = await getToken(request);
@@ -40,6 +43,24 @@ export async function loader({ request }: Route.LoaderArgs) {
   const notes = await getNoteHome(token, searchParams);
   return { notes };
 }
+export const action = async ({ request }: Route.ActionArgs) => {
+  if (request.method !== "DELETE") {
+    throw new Response("Method Not Allowed", { status: 405 });
+  }
+
+  const formData = await request.formData();
+  const idsRaw = formData.get("ids");
+  if (typeof idsRaw !== "string") {
+    return new Response("Invalid form data", { status: 400 });
+  }
+  const ids = JSON.parse(idsRaw) as number[];
+  const token = await getToken(request);
+  if (!token) {
+    return { error: "Unauthorized" };
+  }
+  await deleteNotes(token, ids);
+  // 삭제 로직 수행
+};
 export default function NoteHomePage({ loaderData }: Route.ComponentProps) {
   const { results: notes = [], count = 0 } = loaderData.notes || {};
   const [searchParams, setSearchParams] = useSearchParams();
@@ -72,6 +93,19 @@ export default function NoteHomePage({ loaderData }: Route.ComponentProps) {
     params.set("page", page.toString());
     setSearchParams(params);
   };
+  const [selectedNoteIds, setSelectedNoteIds] = useState<number[]>([]);
+
+  const toggleNoteSelection = (noteId: number) => {
+    setSelectedNoteIds((prev) =>
+      prev.includes(noteId)
+        ? prev.filter((id) => id !== noteId)
+        : [...prev, noteId]
+    );
+  };
+
+  const isNoteSelected = (noteId: number) => selectedNoteIds.includes(noteId);
+  const deleteFetcher = useFetcher();
+
   return (
     <div className="flex flex-col w-full py-4 space-y-6">
       <h1 className="text-2xl font-bold">내 메모 홈</h1>
@@ -146,6 +180,24 @@ export default function NoteHomePage({ loaderData }: Route.ComponentProps) {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>
+                <Checkbox
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      setSelectedNoteIds(notes.map((n: any) => n.id));
+                    } else {
+                      setSelectedNoteIds([]);
+                    }
+                  }}
+                  checked={
+                    selectedNoteIds.length === notes.length && notes.length > 0
+                      ? true
+                      : selectedNoteIds.length > 0
+                      ? "indeterminate"
+                      : false
+                  }
+                />
+              </TableHead>
               <TableHead>파일명</TableHead>
               <TableHead>제목</TableHead>
               <TableHead>공개</TableHead>
@@ -166,6 +218,12 @@ export default function NoteHomePage({ loaderData }: Route.ComponentProps) {
             ) : (
               notes.map((note: any) => (
                 <TableRow key={note.id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={isNoteSelected(note.id)}
+                      onCheckedChange={() => toggleNoteSelection(note.id)}
+                    />
+                  </TableCell>
                   <Link
                     to={`/wisp/notes/note-${note.id}`}
                     className="hover:underline"
@@ -200,45 +258,68 @@ export default function NoteHomePage({ loaderData }: Route.ComponentProps) {
           </TableBody>
         </Table>
       </div>
+      <div className="flex flex-rowjustify-end">
+        {selectedNoteIds.length > 0 && (
+          <div className="absolute left-0">
+            <Button
+              variant="destructive"
+              onClick={() => {
+                deleteFetcher.submit(
+                  {
+                    ids: JSON.stringify(selectedNoteIds),
+                  },
+                  {
+                    method: "delete",
+                    encType: "application/x-www-form-urlencoded", // default form encoding
+                  }
+                );
 
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              onClick={(e) => {
-                e.preventDefault();
-                if (currentPage > 1) goToPage(currentPage - 1);
+                toast.info("삭제 요청을 보냈습니다.");
               }}
-            />
-          </PaginationItem>
+            >
+              삭제
+            </Button>
+          </div>
+        )}
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage > 1) goToPage(currentPage - 1);
+                }}
+              />
+            </PaginationItem>
 
-          {[...Array(totalPages)].map((_, idx) => {
-            const page = idx + 1;
-            return (
-              <PaginationItem key={page}>
-                <PaginationLink
-                  isActive={page === currentPage}
-                  onClick={(e) => {
-                    e.preventDefault(); // 브라우저 기본 이동 방지
-                    goToPage(page);
-                  }}
-                >
-                  {page}
-                </PaginationLink>
-              </PaginationItem>
-            );
-          })}
+            {[...Array(totalPages)].map((_, idx) => {
+              const page = idx + 1;
+              return (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    isActive={page === currentPage}
+                    onClick={(e) => {
+                      e.preventDefault(); // 브라우저 기본 이동 방지
+                      goToPage(page);
+                    }}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            })}
 
-          <PaginationItem>
-            <PaginationNext
-              onClick={(e) => {
-                e.preventDefault();
-                if (currentPage < totalPages) goToPage(currentPage + 1);
-              }}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+            <PaginationItem>
+              <PaginationNext
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage < totalPages) goToPage(currentPage + 1);
+                }}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
     </div>
   );
 }

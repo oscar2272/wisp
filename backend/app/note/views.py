@@ -21,9 +21,10 @@ from .serializers import (
     NoteDetailSerializer,
     NoteDetailEditSerializer,
     NoteDetailShareSerializer,
-    NoteListSerializer,
-    NoteShareSerializer,
+    ExploreNoteListSerializer,
+    ExploreNoteSerializer,
     NoteHomeSerializer,
+    NoteLinkSerializer,
 )
 from core.views import SupabaseJWTAuthentication
 from rest_framework import status
@@ -35,7 +36,10 @@ from django.utils import timezone
 from .pagination.pagination import NoteHomePagination
 from django.db.models import Q
 from rest_framework.generics import ListAPIView
+from django.conf import settings
 
+BASE_URL = settings.FRONTEND_BASE_URL
+print("views.py:BASE_URL",BASE_URL)
 # 사이드바 전용 뷰
 class TreeItemListRetrieveView(APIView):
     authentication_classes = [SupabaseJWTAuthentication]
@@ -77,8 +81,34 @@ class FolderDeleteView(APIView):
     def delete(self, request, pk):
         folder = get_object_or_404(Folder, id=pk, owner=request.user)
         folder.is_deleted = True
+        folder.deleted_at = timezone.now()
         folder.save()
+
+        # ✅ 이 줄 수정
+        folder.notes.update(is_deleted=True)
+
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class FolderListDeleteView(APIView):
+    authentication_classes = [SupabaseJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        folder_ids = request.data.get("folder_ids", [])
+        note_ids = request.data.get("note_ids", [])
+
+        if not isinstance(folder_ids, list):
+            return Response({"error": "folder_ids must be a list"}, status=400)
+        if not isinstance(note_ids, list):
+            return Response({"error": "note_ids must be a list"}, status=400)
+
+        # ✅ 이 줄 수정
+        Folder.objects.filter(id__in=folder_ids, owner=user).update(is_deleted=True,deleted_at=timezone.now())
+        Note.objects.filter(id__in=note_ids, author=user).update(is_deleted=True,deleted_at=timezone.now())
+
+
+        return Response({"success": True, "deleted": {"folders": folder_ids, "notes": note_ids}})
 
 
 class NoteCreateView(APIView):
@@ -105,9 +135,20 @@ class NoteDeleteView(APIView):
     def delete(self, request, pk):
         note = get_object_or_404(Note, id=pk, author=request.user)
         note.is_deleted = True
+        note.deleted_at = timezone.now()
         note.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class NoteListDeleteView(APIView):
+    authentication_classes = [SupabaseJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        ids = request.data.get("ids", [])
+        if not isinstance(ids, list):
+            return Response({"error": "Invalid format"}, status=status.HTTP_400_BAD_REQUEST)
+        Note.objects.filter(id__in=ids, author=request.user).update(is_deleted=True,deleted_at=timezone.now())
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class NoteRenameView(APIView):
     authentication_classes = [SupabaseJWTAuthentication]
@@ -147,7 +188,7 @@ class NoteDetailView(APIView):
 
 
 # edit페이지에서 데이터 조회/수정
-class NoteDetailEditView(APIView):
+class NoteDetailRetrieveUpdateView(APIView):
     authentication_classes = [SupabaseJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -187,7 +228,7 @@ class SlugRetrieveCreateView(APIView):
 
     def get(self, request, pk):
         note = get_object_or_404(Note, id=pk, author=request.user)
-        return Response({"url": f"https://wisp.app/share/note/{note.slug}"}, status=status.HTTP_200_OK)
+        return Response({"url": f"{BASE_URL}/link/{note.slug}"})
 
     def post(self, request, pk):
         note = get_object_or_404(Note, id=pk, author=request.user)
@@ -195,7 +236,7 @@ class SlugRetrieveCreateView(APIView):
         print(slug)
         note.slug = slug
         note.save()
-        return Response({"url": f"https://wisp.app/share/note/{note.slug}"}, status=status.HTTP_200_OK)
+        return Response({"url": f"{BASE_URL}/link/{note.slug}"})
 
 
 # 공유/공개/날짜 설정 view
@@ -212,18 +253,24 @@ class NoteDetailShareView(APIView):
 
 
 # explore 페이지 note list view
-class NoteListView(APIView):
+class ExploreNoteListView(APIView):
     authentication_classes = []
     permission_classes = []
 
     def get(self, request):
-        notes = Note.objects.filter(is_deleted=False, is_public=True) \
-            .annotate(
+        now = timezone.now()
+        notes = Note.objects.filter(
+            is_deleted=False,
+            is_public=True,
+        ).filter(
+            Q(expires_at__gte=now) | Q(expires_at__isnull=True)  # ← 핵심 수정
+        ).annotate(
             seen_count=Count("views", distinct=True),
             comments_count=Count("comments", distinct=True),
             likes_count=Count("likes", distinct=True),
         )
-        serializer = NoteListSerializer(notes, many=True)
+
+        serializer = ExploreNoteListSerializer(notes, many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -241,7 +288,7 @@ class NoteHomeView(ListAPIView):
         sort_param = request.query_params.get("sort", "recent")
         keyword = request.query_params.get("q", "")
 
-        notes = Note.objects.all()
+        notes = Note.objects.filter(is_deleted=False)
 
         if keyword:
             notes = notes.filter(Q(file_name__icontains=keyword))
@@ -277,12 +324,64 @@ class NoteHomeView(ListAPIView):
         return notes.order_by(order_map.get(sort_param, "-updated_at"))
 
 
-class NoteShareRetrieveView(APIView):
+class ExploreNoteRetrieveView(APIView):
     authentication_classes = []
     permission_classes = []
 
     def get(self, request, pk):
         note = get_object_or_404(Note, id=pk)
-        serializer = NoteShareSerializer(note)
+        serializer = ExploreNoteSerializer(note, context={"request": request})
+        print(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+class TrashDeleteDetailView(APIView):
+    authentication_classes = [SupabaseJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+
+
+class TrashListDeleteView(APIView):
+    authentication_classes = [SupabaseJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        Folder.objects.filter(owner=user, is_deleted=True).delete()
+        Note.objects.filter(author=user, is_deleted=True).delete()
+        return Response(status=status.HTTP_200_OK)
+class TrashRestoreDetailView(APIView):
+    authentication_classes = [SupabaseJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        user = request.user
+
+
+class TrashRestoreListView(APIView):
+    authentication_classes = [SupabaseJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        user = request.user
+        Folder.objects.filter(owner=user, is_deleted=True).update(is_deleted=False)
+        folders = Folder.objects.filter(owner=user, is_deleted=False)
+
+        Note.objects.filter(author=user, is_deleted=True).update(is_deleted=False)
+        notes = Note.objects.filter(author=user, is_deleted=False)
+
+
+        folder_data = TreeItemFolderSerializer(folders, many=True).data
+        note_data = TreeItemNoteSerializer(notes, many=True).data
+        return Response(folder_data + note_data, status=status.HTTP_200_OK)
+
+class NoteLinkView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, slug):
+        note = get_object_or_404(Note, slug=slug, is_shared=True)
+        serializer = NoteLinkSerializer(note, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
