@@ -33,8 +33,16 @@ interface NoteCardProps {
 }
 function extractFirstImage(content: any[]): string | null {
   for (const node of content) {
-    if (node.type === "image" && node.attrs?.src) {
+    if (
+      (node.type === "image" || node.type === "resizableImage") &&
+      node.attrs?.src
+    ) {
       return node.attrs.src;
+    }
+
+    if (Array.isArray(node.content)) {
+      const found = extractFirstImage(node.content);
+      if (found) return found;
     }
   }
   return null;
@@ -101,27 +109,30 @@ export function NoteCard({
             </div>
           )}
         </div>
-        <CardHeader className="p-4 pb-2">
-          <div className="flex items-center justify-between mb-1">
-            <div className="text-xs text-muted-foreground">
-              <Badge variant="outline" className="text-[10px] h-5">
-                {formattedDate}
-              </Badge>
-            </div>
-            {getExpiryBadge()}
-          </div>
-          <CardTitle className="text-lg font-semibold line-clamp-1">
-            {title}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="px-4 h-full text-sm text-muted-foreground">
-          <p className="line-clamp-4 h-19">{extractFirstText(description)}</p>
-        </CardContent>
       </Link>
+
+      <CardHeader>
+        <div className="flex items-center justify-between mb-1">
+          <div className="text-xs text-muted-foreground">
+            <Badge variant="outline" className="text-[10px] h-5">
+              {formattedDate}
+            </Badge>
+          </div>
+          {getExpiryBadge()}
+        </div>
+        <CardTitle className="text-lg font-semibold line-clamp-1">
+          {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="px-4 h-full text-sm text-muted-foreground">
+        <p className="line-clamp-4 h-19 break-words">
+          {extractFirstText(description)}
+        </p>
+      </CardContent>
 
       <Separator />
 
-      <CardFooter className="px-4 flex items-center justify-between text-[11px]">
+      <CardFooter className="px-4 py-1 flex items-center justify-between text-[11px]">
         <div className="flex items-center gap-1.5">
           <Avatar>
             {author.avatar ? (

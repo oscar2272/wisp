@@ -41,10 +41,10 @@ export function TiptapReadOnlyViewer({
           link: false, // ✅ 중복 방지
           underline: false, // ✅ 중복 방지
         }),
-        Image.configure({
-          allowBase64: true,
-        }),
-        ImageUploadNode,
+        // Image.configure({
+        //   allowBase64: true,
+        // }),
+        // ImageUploadNode,
         ResizableImage,
         Heading.configure({ levels: [1, 2, 3, 4, 5, 6] }),
         BulletList,

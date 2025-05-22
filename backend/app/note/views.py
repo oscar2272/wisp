@@ -236,7 +236,6 @@ class SlugRetrieveCreateView(APIView):
     def post(self, request, pk):
         note = get_object_or_404(Note, id=pk, author=request.user)
         slug = generate_unique_slug()
-        print(slug)
         note.slug = slug
         note.save()
         return Response({"url": f"{BASE_URL}/link/{note.slug}"})
@@ -334,7 +333,6 @@ class ExploreNoteRetrieveView(APIView):
     def get(self, request, pk):
         note = get_object_or_404(Note, id=pk)
         serializer = ExploreNoteSerializer(note, context={"request": request})
-        print(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

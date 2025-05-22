@@ -23,7 +23,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 SUPABASE_JWT_SECRET = os.environ.get('SUPABASE_JWT_SECRET')
 FRONTEND_BASE_URL = os.environ.get('FRONTEND_BASE_URL')
-print("settings.py:FRONTEND_BASE_URL",FRONTEND_BASE_URL)
 #eg) DEBUG=1 -> DEBUG = True
 #eg) DEBUG=0 -> DEBUG = False
 DEBUG = bool(int(os.environ.get('DEBUG', 0)))
