@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Folder, Note
 from django.utils import timezone
 from user.serializers import ProfileSimpleSerializer
-from rest_framework.fields import SerializerMethodField
+
 
 # 폴더 생성 serializer
 class TreeItemFolderSerializer(serializers.ModelSerializer):
@@ -56,7 +56,7 @@ class NoteDetailSerializer(serializers.ModelSerializer):
         fields = (
             "id", "author", "file_name", "title", "content", "likes_count",
             "slug", "is_shared", "shared_at", "is_public", "expires_at",
-            "created_at", "updated_at", "comments_count","is_deleted"
+            "created_at", "updated_at", "comments_count", "is_deleted"
         )
 
     def get_comments_count(self, obj):
@@ -139,7 +139,6 @@ class ExploreNoteListSerializer(serializers.ModelSerializer):
         return ProfileSimpleSerializer(obj.author.profile, context=self.context).data
 
 
-
 class ExploreNoteSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
@@ -154,7 +153,7 @@ class ExploreNoteSerializer(serializers.ModelSerializer):
 
     def get_content(self, obj):
         if obj.has_expired():
-          return "만료된 노트입니다."
+            return "만료된 노트입니다."
         return obj.content
 
     def get_seen_count(self, obj):
@@ -169,15 +168,17 @@ class ExploreNoteSerializer(serializers.ModelSerializer):
     def get_author(self, obj):
         return ProfileSimpleSerializer(obj.author.profile, context=self.context).data
 
+
 class NoteHomeSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
     seen_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Note
-        fields = ("id", "file_name", "title","likes_count", "comments_count", "seen_count",
-                  "updated_at", "expires_at","type")
+        fields = ("id", "file_name", "title", "likes_count", "comments_count", "seen_count",
+                  "updated_at", "expires_at", "type")
 
     def get_seen_count(self, obj):
         return obj.views.count()
@@ -195,9 +196,11 @@ class NoteHomeSerializer(serializers.ModelSerializer):
             return "shared"
         return "private"
 
+
 class NoteLinkSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
     content = serializers.SerializerMethodField()
+
     class Meta:
         model = Note
         fields = ("id", "slug", "author", "title", "content", "is_deleted", "expires_at", "updated_at")
@@ -207,7 +210,7 @@ class NoteLinkSerializer(serializers.ModelSerializer):
 
     def get_content(self, obj):
         if obj.has_expired():
-          return "만료"
+            return "만료"
         elif obj.is_deleted:
-          return "삭제"
+            return "삭제"
         return obj.content

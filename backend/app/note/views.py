@@ -39,7 +39,8 @@ from rest_framework.generics import ListAPIView
 from django.conf import settings
 
 BASE_URL = settings.FRONTEND_BASE_URL
-print("views.py:BASE_URL",BASE_URL)
+
+
 # 사이드바 전용 뷰
 class TreeItemListRetrieveView(APIView):
     authentication_classes = [SupabaseJWTAuthentication]
@@ -89,6 +90,7 @@ class FolderDeleteView(APIView):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 class FolderListDeleteView(APIView):
     authentication_classes = [SupabaseJWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -104,9 +106,8 @@ class FolderListDeleteView(APIView):
             return Response({"error": "note_ids must be a list"}, status=400)
 
         # ✅ 이 줄 수정
-        Folder.objects.filter(id__in=folder_ids, owner=user).update(is_deleted=True,deleted_at=timezone.now())
-        Note.objects.filter(id__in=note_ids, author=user).update(is_deleted=True,deleted_at=timezone.now())
-
+        Folder.objects.filter(id__in=folder_ids, owner=user).update(is_deleted=True, deleted_at=timezone.now())
+        Note.objects.filter(id__in=note_ids, author=user).update(is_deleted=True, deleted_at=timezone.now())
 
         return Response({"success": True, "deleted": {"folders": folder_ids, "notes": note_ids}})
 
@@ -139,6 +140,7 @@ class NoteDeleteView(APIView):
         note.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 class NoteListDeleteView(APIView):
     authentication_classes = [SupabaseJWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -147,8 +149,9 @@ class NoteListDeleteView(APIView):
         ids = request.data.get("ids", [])
         if not isinstance(ids, list):
             return Response({"error": "Invalid format"}, status=status.HTTP_400_BAD_REQUEST)
-        Note.objects.filter(id__in=ids, author=request.user).update(is_deleted=True,deleted_at=timezone.now())
+        Note.objects.filter(id__in=ids, author=request.user).update(is_deleted=True, deleted_at=timezone.now())
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class NoteRenameView(APIView):
     authentication_classes = [SupabaseJWTAuthentication]
@@ -335,12 +338,12 @@ class ExploreNoteRetrieveView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class TrashDeleteDetailView(APIView):
-    authentication_classes = [SupabaseJWTAuthentication]
-    permission_classes = [IsAuthenticated]
+# class TrashDeleteDetailView(APIView):
+#     authentication_classes = [SupabaseJWTAuthentication]
+#     permission_classes = [IsAuthenticated]
 
-    def delete(self, request):
-        user = request.user
+#     def delete(self, request):
+#         user = request.user
 
 
 class TrashListDeleteView(APIView):
@@ -352,12 +355,12 @@ class TrashListDeleteView(APIView):
         Folder.objects.filter(owner=user, is_deleted=True).delete()
         Note.objects.filter(author=user, is_deleted=True).delete()
         return Response(status=status.HTTP_200_OK)
-class TrashRestoreDetailView(APIView):
-    authentication_classes = [SupabaseJWTAuthentication]
-    permission_classes = [IsAuthenticated]
+# class TrashRestoreDetailView(APIView):
+#     authentication_classes = [SupabaseJWTAuthentication]
+#     permission_classes = [IsAuthenticated]
 
-    def post(self, request, pk):
-        user = request.user
+#     def post(self, request, pk):
+#         user = request.user
 
 
 class TrashRestoreListView(APIView):
@@ -372,10 +375,10 @@ class TrashRestoreListView(APIView):
         Note.objects.filter(author=user, is_deleted=True).update(is_deleted=False)
         notes = Note.objects.filter(author=user, is_deleted=False)
 
-
         folder_data = TreeItemFolderSerializer(folders, many=True).data
         note_data = TreeItemNoteSerializer(notes, many=True).data
         return Response(folder_data + note_data, status=status.HTTP_200_OK)
+
 
 class NoteLinkView(APIView):
     authentication_classes = []

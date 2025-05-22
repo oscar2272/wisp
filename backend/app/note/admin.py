@@ -56,6 +56,7 @@ class FolderAdmin(admin.ModelAdmin):
     readonly_fields = ("owner",)
     ordering = ("-created_at",)
 
+
 admin.site.register(NoteComment)
 admin.site.register(NoteLike)
 admin.site.register(NoteSeen)

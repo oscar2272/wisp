@@ -9,7 +9,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ["created_at"]
 
 
-
 class ProfileSimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
