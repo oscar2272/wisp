@@ -69,6 +69,9 @@ export async function getUserProfileWithEmail(token: string) {
   return res.json();
 }
 
+export function clearSessionCache() {
+  sessionCache = null;
+}
 let sessionCache: { token: string | null } | null = null;
 
 export async function getToken(request: Request): Promise<string | null> {
@@ -77,11 +80,15 @@ export async function getToken(request: Request): Promise<string | null> {
     try {
       const { exp } = jwtDecode<{ exp: number }>(cached);
       const now = Math.floor(Date.now() / 1000);
-      if (exp > now) {
-        return cached;
+
+      if (!exp || exp <= now) {
+        sessionCache = null; // 만료되었으면 캐시 비움
       } else {
+        return cached; // 유효한 경우에만 반환
       }
-    } catch (err) {}
+    } catch (err) {
+      sessionCache = null; // 디코딩 실패 시도 캐시 제거
+    }
   }
 
   // 토큰이 없거나 만료됐으면 새로 요청

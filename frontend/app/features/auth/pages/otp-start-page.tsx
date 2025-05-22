@@ -1,7 +1,7 @@
 import { makeSSRClient } from "~/supa-client";
 import type { Route } from "./+types/otp-start-page";
 import { z } from "zod";
-import { Form, Link, redirect, useNavigate, useNavigation } from "react-router";
+import { Form, Link, redirect, useNavigation } from "react-router";
 import { Input } from "~/common/components/ui/input";
 import { Button } from "~/common/components/ui/button";
 import { LoaderCircle, ArrowLeft } from "lucide-react";
@@ -36,7 +36,6 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
 export default function OtpStartPage({ actionData }: Route.ComponentProps) {
   const navigation = useNavigation();
-  const navigate = useNavigate();
   const isSubmitting =
     navigation.state === "submitting" || navigation.state === "loading";
   return (

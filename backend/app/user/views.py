@@ -12,7 +12,7 @@ from django.contrib.auth import get_user_model
 class SignUpUserView(APIView):
     authentication_classes = [SupabaseJWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
-
+    print("SignUpUserView")
     def post(self, request):
         email = request.user.email
 
@@ -20,7 +20,7 @@ class SignUpUserView(APIView):
             email=email,
             defaults={"name": generate_unique_username()}
         )
-
+        print("SignUpUserView:user",user)
         # 프로필도 없으면 생성
         if created:
             Profile.objects.create(
@@ -29,11 +29,6 @@ class SignUpUserView(APIView):
             )
 
         return Response(
-            {
-                "email": user.email,
-                "name": user.profile.name,
-                "avatar_url": user.profile.avatar_url,
-            },
             status=status.HTTP_200_OK
         )
 

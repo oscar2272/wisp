@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { Route } from "./+types/social-start-page";
 import { redirect } from "react-router";
 import { makeSSRClient } from "~/supa-client";
+import { SignInOrSignUp } from "~/features/profiles/api";
 
 const paramsSchema = z.object({
   provider: z.enum(["github"]),
@@ -18,9 +19,16 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     return redirect("/auth/login");
   }
   const { client, headers } = makeSSRClient(request);
-  const { error } = await client.auth.exchangeCodeForSession(code);
-  if (error) {
-    throw error;
+  const { data: sessionData, error } = await client.auth.exchangeCodeForSession(
+    code
+  );
+  if (error || !sessionData.session?.access_token) {
+    console.error(error);
+    return redirect("/auth/login");
   }
+
+  const token = sessionData.session.access_token;
+  await SignInOrSignUp(token);
+
   return redirect("/", { headers });
 };

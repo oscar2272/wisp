@@ -41,6 +41,8 @@ export default [
         ),
       ]),
       ...prefix("/otp", [
+        route("/loader", "features/auth/pages/otp-loader.tsx"),
+
         route("/start", "features/auth/pages/otp-start-page.tsx"),
         route("/complete", "features/auth/pages/otp-complete-page.tsx"),
       ]),

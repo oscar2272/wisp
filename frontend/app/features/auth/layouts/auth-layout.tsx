@@ -8,6 +8,7 @@ import { toast } from "sonner";
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { client } = makeSSRClient(request);
   const userId = await getLoggedInUserId(client);
+
   const url = new URL(request.url);
   const pathname = url.pathname;
   //로그인한 유저가 /auth/logout 제외한 페이지에 접근하면 메인페이지로 리다이렉트

@@ -37,10 +37,11 @@ export const action = async ({ request }: Route.ActionArgs) => {
     token: otp,
     type: "email",
   });
+
   if (verifyError) {
     return { verifyError: verifyError.message };
   }
-  return redirect("/", { headers });
+  return redirect("/auth/otp/loader", { headers });
 };
 
 export default function OtpPage({ actionData }: Route.ComponentProps) {
