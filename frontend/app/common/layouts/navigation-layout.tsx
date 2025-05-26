@@ -9,13 +9,11 @@ import type { UserProfile } from "~/features/profiles/type";
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { client } = makeSSRClient(request);
   const userId = await getLoggedInUserId(client);
-  console.log(userId);
 
   if (!userId) {
     return null;
   } else {
     const token = await getToken(request);
-    console.log(token);
     if (!token) {
       return null;
     } else {

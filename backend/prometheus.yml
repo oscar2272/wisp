@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 15s # 메트릭을 15초마다 수집
+
+scrape_configs:
+  # Django 애플리케이션의 /metrics 엔드포인트에서 메트릭 수집
+  - job_name: "django"
+    static_configs:
+      - targets: ["app:8000"] # Django 애플리케이션의 /metrics 엔드포인트

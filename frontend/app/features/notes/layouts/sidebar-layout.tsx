@@ -10,9 +10,6 @@ import type { TreeItem } from "../type";
 import { getNotesSidebar, getTrash } from "../api";
 import { TokenContext } from "~/context/token-context";
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  // 테스트를 위한 3초 지연
-  //await new Promise((resolve) => setTimeout(resolve, 3000));
-
   const url = new URL(request.url);
   const pathname = url.pathname;
   const { client } = makeSSRClient(request);

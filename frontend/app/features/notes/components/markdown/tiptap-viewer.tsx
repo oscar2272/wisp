@@ -15,7 +15,7 @@ import Link from "@tiptap/extension-link";
 import { Image } from "@tiptap/extension-image";
 import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node";
 import { ResizableImage } from "../../utils/resizable-image";
-
+import { TableKit } from "@tiptap/extension-table";
 const lowlight = createLowlight(common);
 
 export function TiptapReadOnlyViewer({
@@ -41,10 +41,9 @@ export function TiptapReadOnlyViewer({
           link: false, // ✅ 중복 방지
           underline: false, // ✅ 중복 방지
         }),
-        // Image.configure({
-        //   allowBase64: true,
-        // }),
-        // ImageUploadNode,
+        TableKit.configure({
+          table: { resizable: true },
+        }),
         ResizableImage,
         Heading.configure({ levels: [1, 2, 3, 4, 5, 6] }),
         BulletList,

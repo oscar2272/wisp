@@ -19,7 +19,7 @@ import { Image } from "@tiptap/extension-image";
 import { ResizableImage } from "../../utils/resizable-image";
 import type { JSONContent } from "@tiptap/core";
 import { createMarkdownPastePlugin } from "../../utils/markdown-paste-plugin";
-
+import { TableKit } from "@tiptap/extension-table";
 const lowlight = createLowlight(common);
 
 export const CustomOrderedList = OrderedList.extend({
@@ -61,6 +61,9 @@ export default function TiptapMarkdownEditor({
         heading: false,
         code: false,
       }),
+      TableKit.configure({
+        table: { resizable: true },
+      }),
       ResizableImage,
       Image,
       ImageUploadNode.configure({
@@ -73,6 +76,7 @@ export default function TiptapMarkdownEditor({
           ); // 임시 blob URL
         },
       }),
+
       Heading.configure({ levels: [1, 2, 3, 4, 5, 6] }),
       BulletList,
       // ListItem,
