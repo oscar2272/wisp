@@ -60,7 +60,7 @@ class Profile(models.Model):
         related_name="profile"
     )
     name = models.CharField(max_length=100, unique=True, null=True)
-    avatar = models.ImageField(null=True,blank=True, upload_to=profile_image_file_path)
+    avatar = models.ImageField(null=True, blank=True, upload_to=profile_image_file_path)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

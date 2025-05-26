@@ -290,7 +290,7 @@ class NoteHomeView(ListAPIView):
         sort_param = request.query_params.get("sort", "recent")
         keyword = request.query_params.get("q", "")
 
-        notes = Note.objects.filter(is_deleted=False,author=request.user)
+        notes = Note.objects.filter(is_deleted=False, author=request.user)
 
         if keyword:
             notes = notes.filter(Q(file_name__icontains=keyword))
