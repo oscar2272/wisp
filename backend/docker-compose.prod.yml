@@ -22,6 +22,8 @@ services:
       - FRONTEND_BASE_URL=${FRONTEND_BASE_URL}
     depends_on:
       - db
+    networks:
+      - monitoring
   db:
     image: postgres:15
     restart: always
@@ -31,6 +33,9 @@ services:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
+    networks:
+      - monitoring
+
   prometheus:
     image: prom/prometheus
     container_name: prometheus
@@ -49,7 +54,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: 'admin'  # 기본 관리자 패스워드 설정
+      GF_SECURITY_ADMIN_PASSWORD: "admin" # 기본 관리자 패스워드 설정
     depends_on:
       - prometheus
     networks:

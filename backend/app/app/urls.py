@@ -19,6 +19,7 @@ urlpatterns = [
     path('api/docs/', PublicSwaggerView.as_view(url_name='api-schema'), name='api-docs'),
     path('api/users/', include('user.urls')),
     path('api/notes/', include('note.urls')),
+    path('', include('django_prometheus.urls')),
 ]
 
 
