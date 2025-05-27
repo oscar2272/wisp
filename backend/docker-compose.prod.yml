@@ -59,11 +59,12 @@ services:
       - prometheus
     networks:
       - monitoring
-
+    volumes:
+      - grafana-storage:/var/lib/grafana
 volumes:
   postgres-data:
   static-data:
-
+  grafana-storage:
 networks:
   monitoring:
     driver: bridge
