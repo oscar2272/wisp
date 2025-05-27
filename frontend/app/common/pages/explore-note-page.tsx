@@ -56,7 +56,7 @@ export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-8">
-      <div className="space-y-6">
+      <div className="space-y-6 mb-4">
         {/* 제목 및 날짜 */}
         <div>
           <h1 className="text-3xl font-bold">{note.title || "제목 없음"}</h1>
@@ -123,8 +123,6 @@ export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
             </Badge>
           </div>
         </div>
-
-        <Separator />
       </div>
       {!isExpired ? (
         <div className="prose dark:prose-invert max-w-none">
@@ -139,7 +137,7 @@ export default function ExploreNotePage({ loaderData }: Route.ComponentProps) {
       )}
 
       {/* 하단 네비게이션 */}
-      <div className="mt-12 pt-6 border-t border-border">
+      <div className="mt-12 pt-6 border-border">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm">
