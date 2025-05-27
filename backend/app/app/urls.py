@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 
+# 스펙큐러뷰
 class PublicSchemaView(SpectacularAPIView):
     authentication_classes = []
 
