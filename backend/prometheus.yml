@@ -5,4 +5,4 @@ scrape_configs:
   # Django 애플리케이션의 /metrics 엔드포인트에서 메트릭 수집
   - job_name: "django"
     static_configs:
-      - targets: ["api-wisp.site:8000"]
+      - targets: ["api-wisp.site:9000"]
