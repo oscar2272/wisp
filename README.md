@@ -1,6 +1,8 @@
+[official website](https://wisp-three.vercel.app/)
+
 ![Project Structure](https://github.com/user-attachments/assets/d4d761d4-cf74-4fe6-ad90-d611aa5e645b)
 
-[official website](https://wisp-three.vercel.app/)
+![성능측정](https://github.com/user-attachments/assets/92b2ac31-adfe-4e0e-819d-7e7bab638057)
 
 ## 🤖 AI Autocomplete (Devstral via Ollama)
 
