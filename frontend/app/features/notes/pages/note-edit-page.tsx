@@ -9,9 +9,12 @@ import { getToken } from "~/features/profiles/api";
 import { getEditNote, updateNote } from "../api";
 import { z } from "zod";
 import type { JSONContent } from "@tiptap/core";
+import TiptapAIEditor from "../components/markdown/tiptap-ai-editor";
 
 // ✅ 1. loader
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
+  const ENABLE_AUTOCOMPLETE =
+    import.meta.env.VITE_ENABLE_AUTOCOMPLETE === "true";
   const token = await getToken(request);
   if (!token) {
     return { error: "Unauthorized" };
@@ -20,7 +23,7 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
   const rawId = params.id.replace("note-", "");
   const { note } = await getEditNote(rawId, token);
 
-  return { note, id: params.id };
+  return { note, id: params.id, ENABLE_AUTOCOMPLETE };
 };
 
 // ✅ 2. action
@@ -54,7 +57,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 };
 
 export default function NoteEditPage({ loaderData }: Route.ComponentProps) {
-  const { note, id } = loaderData;
+  const { note, id, ENABLE_AUTOCOMPLETE } = loaderData;
 
   const [title, setTitle] = useState(note!.title);
   const [content, setContent] = useState(
@@ -62,10 +65,37 @@ export default function NoteEditPage({ loaderData }: Route.ComponentProps) {
       ? note!.content
       : JSON.stringify(note!.content)
   );
-
+  const [mode, setMode] = useState<"plain" | "ai">("plain");
   return (
     <main className="max-w-7xl pt-10 flex flex-col justify-between min-h-[calc(100vh-4rem)]">
       <Form method="post">
+        {/* 자동완성 스위치 */}
+        <div className="flex w-fit border-b border-gray-200 dark:border-gray-700 text-sm mb-2 h-8">
+          <button
+            type="button"
+            className={`px-3 ${
+              mode === "plain"
+                ? "border-b-2 border-blue-500 font-medium text-black dark:text-white"
+                : "text-gray-400"
+            }`}
+            onClick={() => setMode("plain")}
+          >
+            일반 작성
+          </button>
+          <button
+            type="button"
+            className={`px-3 ${
+              mode === "ai"
+                ? "border-b-2 border-blue-500 font-medium text-black dark:text-white"
+                : "text-gray-400"
+            }`}
+            onClick={() => setMode("ai")}
+            disabled={!ENABLE_AUTOCOMPLETE}
+          >
+            AI 자동완성
+          </button>
+        </div>
+
         <div className="flex-1">
           {/* 제목 입력 */}
           <div className="sticky top-0 z-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
@@ -88,14 +118,23 @@ export default function NoteEditPage({ loaderData }: Route.ComponentProps) {
             <input type="hidden" name="content" value={content} />
 
             <ClientOnly fallback={<p>에디터 로딩 중...</p>}>
-              {() => (
-                <TiptapMarkdownEditor
-                  initialContent={note!.content}
-                  onChange={({ json }: { json: JSONContent }) =>
-                    setContent(JSON.stringify(json))
-                  }
-                />
-              )}
+              {() =>
+                mode === "plain" ? (
+                  <TiptapMarkdownEditor
+                    initialContent={note!.content}
+                    onChange={({ json }: { json: JSONContent }) =>
+                      setContent(JSON.stringify(json))
+                    }
+                  />
+                ) : (
+                  <TiptapAIEditor
+                    initialContent={note!.content}
+                    onChange={({ json }: { json: JSONContent }) =>
+                      setContent(JSON.stringify(json))
+                    }
+                  />
+                )
+              }
             </ClientOnly>
           </div>
         </div>

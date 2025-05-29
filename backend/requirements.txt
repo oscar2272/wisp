@@ -17,3 +17,4 @@ uwsgi>=2.0.22,<2.1.0
 
 # 모니터링
 django-prometheus>=2.3.1
+

@@ -2,6 +2,18 @@
 
 [official website](https://wisp-three.vercel.app/)
 
+## 🤖 AI Autocomplete (Devstral via Ollama)
+
+- Lightweight Copilot-style autocomplete using Devstral-Small-2505
+
+- Deployed locally via Ollama (runs entirely on your machine)
+
+- FastAPI service proxies prompt requests to Ollama on http://host.docker.internal:11434
+
+- Integrated with Tiptap editor for seamless inline suggestions
+
+- Automatically removed when editing resumes or input changes
+
 ## 🛠️ Tech Stack
 
 - **Frontend**: Remix(React router v7), React, TailwindCSS, ShadCN/UI

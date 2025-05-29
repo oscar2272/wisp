@@ -40,5 +40,16 @@ services:
       - POSTGRES_USER=devuser
       - POSTGRES_PASSWORD=changeme
 
+  fastapi-app:
+    build:
+      context: ./fastapi-app
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./fastapi-app:/fastapp
+    env_file:
+      - ./fastapi-app/.env
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
 volumes:
   dev-db-data:

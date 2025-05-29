@@ -40,5 +40,5 @@ jobs:
           script: |
             cd wisp/backend
             git pull origin main
-            docker-compose down
-            docker-compose up -d
+            docker-compose -f docker-compose.prod.yml down
+            docker-compose -f docker-compose.prod.yml up -d
