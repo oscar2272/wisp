@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api import autocomplete
+from api import autocomplete_ws
 
 app = FastAPI()
 
-app.include_router(autocomplete.router, prefix="/fast-api/autocomplete")
+app.include_router(autocomplete_ws.router, prefix="/ws/autocomplete")
 
 # ✅ CORS 설정: FastAPI 인스턴스 바로 아래에 추가
 app.add_middleware(
@@ -15,7 +15,3 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-#test
-@app.get("/")
-def root():
-    return {"message": "Hello from FastAPI!"}
