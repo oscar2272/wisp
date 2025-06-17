@@ -1,31 +1,36 @@
 from locust import HttpUser, task, between
 import random
+from django.conf import settings
 
 class NoteUser(HttpUser):
-    wait_time = between(1, 3)  # 각 요청 사이 대기 시간
+    wait_time = between(1, 3)
 
-    # 노트 리스트 탐색
+    #
+    def on_start(self):
+        self.token = settings.SUPABASE_JWT_SECRET
+        self.client.headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+
     @task(4)
     def explore_notes(self):
         self.client.get("/api/notes/explore/")
 
-    # 랜덤한 노트 상세 조회
     @task(3)
     def view_note_detail(self):
-        note_id = random.randint(1, 10)  # 임의의 ID. 존재하는 ID 범위로 조정 필요
+        note_id = random.randint(1, 10)
         self.client.get(f"/api/notes/{note_id}/")
 
-    # 노트 수정 (PATCH)
     @task(2)
     def edit_note(self):
-        note_id = random.randint(1, 5)  # 임의의 ID
+        note_id = random.randint(1, 5)
         payload = {
             "title": "Locust Test",
             "content": "This is updated by Locust.",
         }
         self.client.patch(f"/api/notes/{note_id}/edit/", json=payload)
 
-    # 폴더 생성 (POST)
     @task(1)
     def create_folder(self):
         payload = {
