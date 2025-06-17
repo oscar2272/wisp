@@ -13,3 +13,7 @@ class NoteUser(HttpUser):
             "Content-Type": "application/json"
         }
 
+    @task(1)
+    def explore_notes(self):
+        self.client.get("/api/notes/explore/")
+
