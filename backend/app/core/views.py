@@ -3,7 +3,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from core.utils.jwt import verify_supabase_jwt
 from user.models import User, Profile
 from core.utils.generate_name import generate_unique_username
-
+from django.contrib.auth import get_user_model
 
 class SupabaseJWTAuthentication(BaseAuthentication):
     def authenticate(self, request):
@@ -18,15 +18,10 @@ class SupabaseJWTAuthentication(BaseAuthentication):
 
         email = user_info["email"]
 
-        user, created = User.objects.get_or_create(
-            email=email,
-            defaults={"is_active": True}
-        )
-
-        if created:
-            Profile.objects.create(
-                user=user,
-                name=generate_unique_username()
-            )
+        try:
+            user = get_user_model().objects.get(email=email)
+        except get_user_model().DoesNotExist:
+            user = None  # 존재하지 않는 유저일 경우 None 반환
 
         return (user, None)
+

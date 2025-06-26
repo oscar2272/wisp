@@ -9,6 +9,10 @@ class NoteUser(HttpUser):
 
     #
     def on_start(self):
+        login_payload = {
+            "email":"oscar2272@naver.com",
+
+        }
         self.token = os.getenv("SUPABASE_JWT")
         self.client.headers = {
             "Authorization": f"Bearer {self.token}",

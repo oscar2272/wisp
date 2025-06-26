@@ -8,7 +8,8 @@ def verify_supabase_jwt(token):
             token,
             settings.SUPABASE_JWT_SECRET,
             algorithms=["HS256"],
-            options={"verify_aud": False}
+            options={"verify_aud": False},
+            leeway=10
         )
         return {
             "email": decoded.get("email"),
