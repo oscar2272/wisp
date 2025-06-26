@@ -5,7 +5,17 @@ export function containsHangulJamo(str: string): boolean {
   });
 }
 
-const bannedWords = ["fuck", "shit", "bitch", "cunt", "dick"];
+const bannedWords = [
+  "fuck",
+  "shit",
+  "bitch",
+  "cunt",
+  "dick",
+  "개새끼",
+  "씨발",
+  "시발",
+  "병신",
+];
 export function containsProfanity(str: string): boolean {
   const lower = str.toLowerCase();
   return bannedWords.some((word) => lower.includes(word));

@@ -12,12 +12,14 @@ export async function SignInOrSignUp(token: string) {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
     },
   });
   if (!res.ok) {
     throw new Error("User sync failed");
   }
 }
+
 export async function getUserProfile(token: string) {
   const res = await fetch(`${USER_API_URL}/me/`, {
     method: "GET",
@@ -99,4 +101,34 @@ export async function getToken(request: Request): Promise<string | null> {
   sessionCache = { token };
 
   return token;
+}
+export async function checkNickname(nickname: string): Promise<boolean> {
+  const res = await fetch(`${USER_API_URL}/check-nickname/${nickname}/`);
+  if (!res.ok) {
+    throw new Error("닉네임 중복확인 실패");
+  }
+  const result = await res.json();
+
+  return result.exists;
+}
+
+export async function signupWithPassword(
+  email: string,
+  nickname: string,
+  token: string
+): Promise<{ error?: string }> {
+  const res = await fetch(`${USER_API_URL}/signup/`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, nickname }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    return { error: errorData.message || "회원가입 실패" };
+  }
+  return {};
 }

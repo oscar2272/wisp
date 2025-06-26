@@ -31,6 +31,8 @@ export default [
 
   layout("features/auth/layouts/auth-layout.tsx", [
     route("/auth/login", "features/auth/pages/login-page.tsx"),
+    route("/auth/signup", "features/auth/pages/email-signup-page.tsx"),
+    route("/auth/verify-nickname", "features/auth/pages/verify-nickname.tsx"),
     route("/auth/logout", "features/auth/pages/logout-page.tsx"),
     ...prefix("/auth", [
       ...prefix("/social", [
