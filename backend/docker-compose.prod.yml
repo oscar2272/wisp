@@ -24,6 +24,19 @@ services:
       - db
     networks:
       - monitoring
+
+  fastapi-app:
+    build:
+      context: ./fastapi-app
+    restart: always
+    env_file:
+      - ./fastapi-app/.env
+    ports:
+      - "8001:8000"
+    networks:
+      - monitoring
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+
   db:
     image: postgres:15
     restart: always
