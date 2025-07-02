@@ -19,7 +19,7 @@ export function getTipTapExtensions() {
       codeBlock: false,
       heading: false,
       code: false,
-      bulletList: false,
+      //bulletList: false,
       orderedList: false,
       listItem: false,
     }),

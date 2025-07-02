@@ -89,6 +89,7 @@ export async function getToken(request: Request): Promise<string | null> {
         return cached; // 유효한 경우에만 반환
       }
     } catch (err) {
+      console.log("❌ JWT 디코딩 실패:", err);
       sessionCache = null; // 디코딩 실패 시도 캐시 제거
     }
   }
@@ -96,6 +97,7 @@ export async function getToken(request: Request): Promise<string | null> {
   // 토큰이 없거나 만료됐으면 새로 요청
   const { client } = makeSSRClient(request);
   const { data } = await client.auth.getSession();
+  console.log("[getSession]", data);
   const token = data.session?.access_token ?? null;
 
   sessionCache = { token };

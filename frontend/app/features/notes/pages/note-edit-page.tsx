@@ -9,7 +9,6 @@ import { getToken } from "~/features/profiles/api";
 import { getEditNote, updateNote } from "../api";
 import { z } from "zod";
 import type { JSONContent } from "@tiptap/core";
-import TiptapAIEditor from "../components/markdown/tiptap-ai-editor";
 
 // ✅ 1. loader
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
@@ -65,36 +64,10 @@ export default function NoteEditPage({ loaderData }: Route.ComponentProps) {
       ? note!.content
       : JSON.stringify(note!.content)
   );
-  const [mode, setMode] = useState<"plain" | "ai">("plain");
   return (
     <main className="max-w-7xl pt-10 flex flex-col justify-between min-h-[calc(100vh-4rem)]">
       <Form method="post">
         {/* 자동완성 스위치 */}
-        <div className="flex w-fit border-b border-gray-200 dark:border-gray-700 text-sm mb-2 h-8">
-          <button
-            type="button"
-            className={`px-3 ${
-              mode === "plain"
-                ? "border-b-2 border-blue-500 font-medium text-black dark:text-white"
-                : "text-gray-400"
-            }`}
-            onClick={() => setMode("plain")}
-          >
-            일반 작성
-          </button>
-          <button
-            type="button"
-            className={`px-3 ${
-              mode === "ai"
-                ? "border-b-2 border-blue-500 font-medium text-black dark:text-white"
-                : "text-gray-400"
-            }`}
-            onClick={() => setMode("ai")}
-            disabled={!ENABLE_AUTOCOMPLETE}
-          >
-            AI 자동완성
-          </button>
-        </div>
 
         <div className="flex-1">
           {/* 제목 입력 */}
@@ -118,23 +91,14 @@ export default function NoteEditPage({ loaderData }: Route.ComponentProps) {
             <input type="hidden" name="content" value={content} />
 
             <ClientOnly fallback={<p>에디터 로딩 중...</p>}>
-              {() =>
-                mode === "plain" ? (
-                  <TiptapMarkdownEditor
-                    initialContent={note!.content}
-                    onChange={({ json }: { json: JSONContent }) =>
-                      setContent(JSON.stringify(json))
-                    }
-                  />
-                ) : (
-                  <TiptapAIEditor
-                    initialContent={note!.content}
-                    onChange={({ json }: { json: JSONContent }) =>
-                      setContent(JSON.stringify(json))
-                    }
-                  />
-                )
-              }
+              {() => (
+                <TiptapMarkdownEditor
+                  initialContent={note!.content}
+                  onChange={({ json }: { json: JSONContent }) =>
+                    setContent(JSON.stringify(json))
+                  }
+                />
+              )}
             </ClientOnly>
           </div>
         </div>

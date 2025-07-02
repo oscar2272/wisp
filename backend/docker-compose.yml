@@ -46,7 +46,7 @@ services:
     ports:
       - "8001:8000"
     volumes:
-      - ./fastapi-app:/fastapp
+      - ./fastapi-app:/fastapi-app
     env_file:
       - ./fastapi-app/.env
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
