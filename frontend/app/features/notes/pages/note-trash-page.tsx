@@ -19,15 +19,22 @@ import {
 import { Alert, AlertDescription } from "~/common/components/ui/alert";
 import type { Route } from "./+types/note-trash-page";
 import { emptyTrash, restoreTrash } from "../api";
-import { getToken } from "~/features/profiles/api";
+import { makeSSRClient } from "~/supa-client";
+
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const token = await getToken(request);
+  const { client } = makeSSRClient(request);
+  const token = await client.auth
+    .getSession()
+    .then((r) => r.data.session?.access_token);
   if (!token) {
     return redirect("/auth/login");
   }
 };
 export async function action({ request }: Route.ActionArgs) {
-  const token = await getToken(request);
+  const { client } = makeSSRClient(request);
+  const token = await client.auth
+    .getSession()
+    .then((r) => r.data.session?.access_token);
   if (!token) {
     return { error: "Unauthorized" };
   }

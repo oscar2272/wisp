@@ -1,9 +1,11 @@
-import { getToken } from "~/features/profiles/api";
 import type { Route } from "./+types/trash-action";
 import { restoreTrash } from "../api";
-
+import { makeSSRClient } from "~/supa-client";
 export async function action({ request }: Route.ActionArgs) {
-  const token = await getToken(request);
+  const { client } = makeSSRClient(request);
+  const token = await client.auth
+    .getSession()
+    .then((r) => r.data.session?.access_token);
   if (!token) {
     return { error: "Unauthorized" };
   }

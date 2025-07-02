@@ -3,7 +3,7 @@ import { Outlet } from "react-router";
 import type { Route } from "./+types/navigation-layout";
 import { makeSSRClient } from "~/supa-client";
 import { getLoggedInUserId } from "~/features/profiles/queries";
-import { getUserProfile, getToken } from "~/features/profiles/api";
+import { getUserProfile } from "~/features/profiles/api";
 import type { UserProfile } from "~/features/profiles/type";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
@@ -13,7 +13,9 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   if (!userId) {
     return null;
   } else {
-    const token = await getToken(request);
+    const token = await client.auth
+      .getSession()
+      .then((r) => r.data.session?.access_token);
     if (!token) {
       return null;
     } else {

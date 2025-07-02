@@ -14,7 +14,7 @@ import {
   containsHangulJamo,
   containsProfanity,
 } from "~/features/profiles/utils/name-filter";
-import { getToken } from "~/features/profiles/api";
+import { makeSSRClient } from "~/supa-client";
 const formSchema = z.object({
   name: z
     .string()
@@ -33,7 +33,10 @@ const formSchema = z.object({
 });
 
 export async function action({ request }: Route.ActionArgs) {
-  const actionToken = await getToken(request);
+  const { client } = makeSSRClient(request);
+  const actionToken = await client.auth
+    .getSession()
+    .then((r) => r.data.session?.access_token);
   const formData = await request.formData();
   const { data, success, error } = formSchema.safeParse(
     Object.fromEntries(formData)

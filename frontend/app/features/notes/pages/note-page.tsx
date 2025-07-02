@@ -15,7 +15,7 @@ import { ShareDialog } from "../components/share-dialog";
 import type { Route } from "./+types/note-page";
 import { DateTime } from "luxon";
 import { Link, redirect, useFetcher, useParams } from "react-router";
-import { getToken } from "~/features/profiles/api";
+
 import { createUrl, deleteNote, getNote, getUrl, patchShare } from "../api";
 import {
   DropdownMenu,
@@ -27,13 +27,17 @@ import {
 
 import { toast } from "sonner";
 import { TiptapReadOnlyViewer } from "../components/markdown/tiptap-viewer";
+import { makeSSRClient } from "~/supa-client";
 
 export async function action({ request, params }: Route.ActionArgs) {
   const formData = await request.formData();
 
   const shareType = formData.get("shareType");
   const expiryDate = formData.get("expiryDate");
-  const token = await getToken(request);
+  const { client } = makeSSRClient(request);
+  const token = await client.auth
+    .getSession()
+    .then((r) => r.data.session?.access_token);
   if (!token) {
     return { error: "Unauthorized" };
   }
@@ -90,7 +94,10 @@ export async function action({ request, params }: Route.ActionArgs) {
   }
 }
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const token = await getToken(request);
+  const { client } = makeSSRClient(request);
+  const token = await client.auth
+    .getSession()
+    .then((r) => r.data.session?.access_token);
   if (!token) {
     return { error: "Unauthorized" };
   }

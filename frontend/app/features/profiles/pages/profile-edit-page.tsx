@@ -12,12 +12,13 @@ import { ArrowLeft, Upload } from "lucide-react";
 import { useState } from "react";
 import { z } from "zod";
 import type { Route } from "./+types/profile-edit-page";
-import { getToken, updateUserProfile } from "../api";
+import { updateUserProfile } from "../api";
 import {
   containsHangulJamo,
   containsProfanity,
   containsAdmin,
 } from "../utils/name-filter";
+import { makeSSRClient } from "~/supa-client";
 const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
 const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
@@ -82,7 +83,10 @@ export const action = async ({ request }: Route.ActionArgs) => {
     return { formErrors: error.flatten().fieldErrors };
   }
   const { name, avatar } = data;
-  const token = await getToken(request);
+  const { client } = makeSSRClient(request);
+  const token = await client.auth
+    .getSession()
+    .then((r) => r.data.session?.access_token);
   if (!token) {
     return { globalError: "로그인이 필요합니다." };
   }

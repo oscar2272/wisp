@@ -5,16 +5,21 @@ import { useState } from "react";
 import { Form, Link, redirect } from "react-router";
 import { ClientOnly } from "remix-utils/client-only";
 import TiptapMarkdownEditor from "../components/markdown/mardown-editor.client";
-import { getToken } from "~/features/profiles/api";
+
 import { getEditNote, updateNote } from "../api";
 import { z } from "zod";
 import type { JSONContent } from "@tiptap/core";
+import { makeSSRClient } from "~/supa-client";
 
 // ✅ 1. loader
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
   const ENABLE_AUTOCOMPLETE =
     import.meta.env.VITE_ENABLE_AUTOCOMPLETE === "true";
-  const token = await getToken(request);
+  const { client } = makeSSRClient(request);
+  const token = await client.auth
+    .getSession()
+    .then((r) => r.data.session?.access_token);
+
   if (!token) {
     return { error: "Unauthorized" };
   }
@@ -45,7 +50,10 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 
   const { title, content } = result.data;
   const rawId = params.id.replace("note-", "");
-  const token = await getToken(request);
+  const { client } = makeSSRClient(request);
+  const token = await client.auth
+    .getSession()
+    .then((r) => r.data.session?.access_token);
   if (!token) {
     return { error: "Unauthorized" };
   }

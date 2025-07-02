@@ -1,5 +1,3 @@
-import { makeSSRClient } from "~/supa-client";
-import { jwtDecode } from "jwt-decode";
 // app/features/profiles/api.ts
 const BASE_URL = process.env.VITE_API_BASE_URL;
 if (!BASE_URL) {
@@ -76,34 +74,6 @@ export function clearSessionCache() {
 }
 let sessionCache: { token: string | null } | null = null;
 
-export async function getToken(request: Request): Promise<string | null> {
-  const cached = sessionCache?.token;
-  if (cached) {
-    try {
-      const { exp } = jwtDecode<{ exp: number }>(cached);
-      const now = Math.floor(Date.now() / 1000);
-
-      if (!exp || exp <= now) {
-        sessionCache = null; // 만료되었으면 캐시 비움
-      } else {
-        return cached; // 유효한 경우에만 반환
-      }
-    } catch (err) {
-      console.log("❌ JWT 디코딩 실패:", err);
-      sessionCache = null; // 디코딩 실패 시도 캐시 제거
-    }
-  }
-
-  // 토큰이 없거나 만료됐으면 새로 요청
-  const { client } = makeSSRClient(request);
-  const { data } = await client.auth.getSession();
-  console.log("[getSession]", data);
-  const token = data.session?.access_token ?? null;
-
-  sessionCache = { token };
-
-  return token;
-}
 export async function checkNickname(nickname: string): Promise<boolean> {
   const res = await fetch(`${USER_API_URL}/check-nickname/${nickname}/`);
   if (!res.ok) {

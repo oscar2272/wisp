@@ -17,7 +17,6 @@ import {
 import { Input } from "~/common/components/ui/input";
 import { Link, useFetcher, useSearchParams } from "react-router";
 import type { Route } from "./+types/note-home-page";
-import { getToken } from "~/features/profiles/api";
 import { deleteNotes, getNoteHome } from "../api";
 import { DateTime } from "luxon";
 import { useState } from "react";
@@ -32,9 +31,13 @@ import {
 import { Checkbox } from "~/common/components/ui/checkbox";
 import { Button } from "~/common/components/ui/button";
 import { toast } from "sonner";
+import { makeSSRClient } from "~/supa-client";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const token = await getToken(request);
+  const { client } = makeSSRClient(request);
+  const token = await client.auth
+    .getSession()
+    .then((r) => r.data.session?.access_token);
   if (!token) {
     return { error: "Unauthorized" };
   }
@@ -54,7 +57,10 @@ export const action = async ({ request }: Route.ActionArgs) => {
     return new Response("Invalid form data", { status: 400 });
   }
   const ids = JSON.parse(idsRaw) as number[];
-  const token = await getToken(request);
+  const { client } = makeSSRClient(request);
+  const token = await client.auth
+    .getSession()
+    .then((r) => r.data.session?.access_token);
   if (!token) {
     return { error: "Unauthorized" };
   }
