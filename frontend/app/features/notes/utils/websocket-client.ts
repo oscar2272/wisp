@@ -1,7 +1,6 @@
 // utils/createWebSocketClient.ts
 const BASE_URL = import.meta.env.VITE_WS_BASE_URL;
 
-console.log("BASE_URL", BASE_URL);
 export function createWebSocketClient(onMessage: (msg: string) => void) {
   const socket = new WebSocket(`${BASE_URL}/ws/autocomplete`);
 

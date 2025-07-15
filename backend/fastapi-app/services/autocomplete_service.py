@@ -5,7 +5,9 @@ from openai.types.chat import ChatCompletionChunk
 
 client = AsyncOpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
+
 async def stream_openai_response(prompt: str):
+    print(prompt)
     stream = await client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[

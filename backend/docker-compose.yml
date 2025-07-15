@@ -16,17 +16,19 @@ services:
       sh -c "python manage.py wait_for_db &&
              python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
+    env_file:
+      - ./app/.env
     environment:
       - DJANGO_SETTINGS_MODULE=app.settings
       - DB_HOST=db
       - DB_NAME=devdb
       - DB_USER=devuser
       - DB_PASS=changeme
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
-      - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
       - DEBUG=1
-      - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
-      - FRONTEND_BASE_URL=${FRONTEND_BASE_URL}
+      # - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      # - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      # - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
+      # - FRONTEND_BASE_URL=${FRONTEND_BASE_URL}
 
     depends_on:
       - db

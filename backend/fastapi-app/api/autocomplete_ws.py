@@ -6,6 +6,7 @@ from services.autocomplete_service import stream_openai_response
 
 router = APIRouter()
 
+
 @router.websocket("/autocomplete")
 async def openai_autocomplete(websocket: WebSocket):
     await websocket.accept()

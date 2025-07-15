@@ -2,7 +2,6 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Heading from "@tiptap/extension-heading";
 import BulletList from "@tiptap/extension-bullet-list";
-import OrderedList from "@tiptap/extension-ordered-list";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import Highlight from "@tiptap/extension-highlight";
@@ -24,6 +23,19 @@ import { createWebSocketClient } from "../../utils/websocket-client";
 import { SuggestionExtension } from "../../utils/suggestion-extension";
 
 const lowlight = createLowlight(common);
+function removeImagesFromJSON(node: any): any {
+  if (node.type === "image" || node.type === "resizableImage") {
+    return null; // 이미지 및 resizableImage 노드 제거
+  }
+
+  if (!node.content) return node;
+
+  const filteredContent = node.content
+    .map((child: any) => removeImagesFromJSON(child))
+    .filter((child: any) => child !== null);
+
+  return { ...node, content: filteredContent };
+}
 
 export default function TiptapMarkdownEditor({
   onChange,
@@ -122,9 +134,11 @@ export default function TiptapMarkdownEditor({
       const html = editor.getHTML();
       const markdown = (editor.storage as any).markdown?.getMarkdown?.() || "";
       const json = editor.getJSON();
-      onChange?.({ html, markdown, json });
-
-      sendToAI(markdown); // ✅ 입력 멈추면 500ms 뒤 자동완성 요청
+      const filteredJson = removeImagesFromJSON(
+        JSON.parse(JSON.stringify(json))
+      );
+      onChange?.({ html, markdown, json: filteredJson });
+      sendToAI(JSON.stringify(filteredJson));
     },
   });
 
