@@ -46,20 +46,35 @@ class NoteUser(HttpUser):
         }
 
         data = {
-            "file_name": f"LoadTest Note {random.randint(1000, 9999)}",
-            "title": "LoadTest Note Title",
-            "content": [
-                {"type": "paragraph", "content": [{"type": "text", "text": "내용을 입력하세요."}]},
-                {"type": "paragraph"}
-            ]
+            "name": f"LoadTest Note {random.randint(1000, 9999)}",
+            "parent_id": None  # 필요하면 실제 folder-id로
         }
         response = self.client.post("/api/notes/note/", json=data)
         if response.status_code == 201:
             note = response.json()
-            self.note_ids = [note["id"]]  # ✅ 확정적으로 1개라도 존재함
-            self.created_note_id = note["id"]  # 삭제용으로 따로 저장
+            note_id = note["id"]  # 먼저 추출
+
+            # "note-69" 같은 문자열이면 숫자만 추출
+            if isinstance(note_id, str) and note_id.startswith("note-"):
+                note_id = int(note_id.replace("note-", ""))
+
+            self.note_ids = [note_id]  # 리스트에도 숫자 ID로 저장
+            self.created_note_id = note_id  # 삭제용 ID 저장
+
+
         else:
+            print("❌ 노트 생성 실패:")
+            print("Status code:", response.status_code)
+            print("Response body:", response.text)
             raise Exception("노트 생성 실패")
+
+    # def on_stop(self):
+    #     if hasattr(self, "created_note_id"):
+    #         response = self.client.delete(f"/api/notes/{self.created_note_id}/delete/")
+    #         if response.status_code != 204:
+    #             print(f"❌ 노트 삭제 실패 (id={self.created_note_id}) - status {response.status_code}")
+    #         else:
+    #             print(f"✅ 노트 삭제 완료 (id={self.created_note_id})")
 
     @task(1)
     def explore_notes(self):
@@ -72,7 +87,7 @@ class NoteUser(HttpUser):
     @task(2)
     def get_note_detail(self):
         if self.note_ids:
-            note_id = random.choice(self.note_ids)
+            note_id = self.created_note_id
             self.client.get(f"/api/notes/{note_id}/")
 
     @task(1)
@@ -87,24 +102,12 @@ class NoteUser(HttpUser):
         self.client.get("/api/notes/home/", params=param)
 
     @task(1)
-    def create_note(self):
-        data = {
-            "file_name": f"Initial Note {random.randint(1, 1000)}",
-            "title": f"Initial Title {random.randint(1, 1000)}",
-            "content": [
-                {"type": "paragraph", "content": [{"type": "text", "text": "내용을 입력하세요."}]},
-                {"type": "paragraph"}
-            ]
-        }
-        self.client.post("/api/notes/note/", json=data)
-
-    @task(1)
     def update_note(self):
         if self.note_ids:
-            note_id = random.choice(self.note_ids)
+            note_id = self.created_note_id
             data = {
-                "file_name": f"Initial Note {random.randint(1, 1000)}",
-                "title": f"Initial Title {random.randint(1, 1000)}",
+                "file_name": f"update Note {random.randint(1, 1000)}",
+                "title": f"update Title {random.randint(1, 1000)}",
                 "content": [
                     {"type": "paragraph", "content": [{"type": "text", "text": "수정된 내용입니다."}]},
                     {"type": "paragraph"}

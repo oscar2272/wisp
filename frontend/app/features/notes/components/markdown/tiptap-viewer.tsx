@@ -7,6 +7,7 @@ import OrderedList from "@tiptap/extension-ordered-list";
 import ListItem from "@tiptap/extension-list-item";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
+import HardBreak from "@tiptap/extension-hard-break";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { createLowlight, common } from "lowlight";
 import Highlight from "@tiptap/extension-highlight";
@@ -45,6 +46,7 @@ export function TiptapReadOnlyViewer({
           table: { resizable: true },
         }),
         ResizableImage,
+        HardBreak.configure({ keepMarks: false }),
         Heading.configure({ levels: [1, 2, 3, 4, 5, 6] }),
         BulletList,
         OrderedList,

@@ -265,7 +265,7 @@ class ExploreNoteListView(APIView):
             is_deleted=False,
             is_public=True,
         ).filter(
-            Q(expires_at__gte=now) | Q(expires_at__isnull=True)  # ← 핵심 수정
+            Q(expires_at__gte=now) | Q(expires_at__isnull=True)
         ).annotate(
             seen_count=Count("views", distinct=True),
             comments_count=Count("comments", distinct=True),

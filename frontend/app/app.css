@@ -340,4 +340,10 @@ body {
   .ProseMirror h3[data-focused-heading="false"] span[data-markdown] {
     display: none;
   }
+  .ProseMirror p:empty::before {
+    content: "\00a0";
+    white-space: pre-wrap;
+    display: inline-block;
+    min-height: 1em;
+  }
 }
